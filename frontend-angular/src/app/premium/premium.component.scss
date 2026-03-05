@@ -48,7 +48,15 @@
     &:hover { text-decoration: underline; }
   }
   span { color: var(--g400); }
-  .current { color: var(--g800); font-weight: 600; }
+  .current { 
+    color: var(--sky-dp); 
+    font-weight: 600; 
+    background: linear-gradient(135deg, var(--sky-lt), #e8f7ff);
+    padding: 4px 10px;
+    border-radius: 16px;
+    border: 1.5px solid rgba(91, 184, 245, 0.3);
+    position: relative;
+  }
 }
 
 // ════════════════════════════════

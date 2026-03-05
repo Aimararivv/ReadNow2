@@ -1,3 +1,12 @@
+<!-- ══════ BREADCRUMB ══════ -->
+<nav class="breadcrumb" aria-label="breadcrumb">
+  <a routerLink="/home">Inicio</a>
+  <span>›</span>
+  <a routerLink="/catalog">Catálogo</a>
+  <span>›</span>
+  <span class="current">Detalle del Libro</span>
+</nav>
+
 <div *ngIf="loading">
   ⏳ Cargando libro...
 </div>

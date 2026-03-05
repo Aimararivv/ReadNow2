@@ -1,11 +1,19 @@
+<!-- ══════ BREADCRUMB ══════ -->
+<nav class="breadcrumb" aria-label="breadcrumb">
+  <a routerLink="/home">Inicio</a>
+  <span>›</span>
+  <span class="current">Categorías</span>
+</nav>
+
 <div class="categories-page">
   <h1 class="page-title">Categorías de Libros</h1>
 
   <div class="categories-grid">
     <div class="category-card" *ngFor="let category of categories">
+      <div class="category-icon">{{ category.icon }}</div>
       <h2>{{ category.name }}</h2>
       <p>{{ category.description }}</p>
-      <button>Ver Libros</button>
+      <button class="blue-btn" (click)="viewBooks(category.name)">Ver Libros</button>
     </div>
   </div>
 </div>

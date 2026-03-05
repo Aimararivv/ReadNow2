@@ -1,3 +1,7 @@
+<!-- ══════ BREADCRUMB ══════ -->
+<nav class="breadcrumb" aria-label="breadcrumb">
+  <span class="current">Inicio</span>
+</nav>
 <!-- CONTENIDO PRINCIPAL -->
 <div class="rn-container">
   <main class="rn-main">
@@ -11,12 +15,7 @@
       <div class="rn-carousel">
         <button class="rn-arrow">‹</button>
 
-        <div
-           class="rn-book"
-           *ngFor="let b of books"
-           (click)="goToBook(b)"
-        >
-
+        <div class="rn-books">
           <!-- LIBROS -->
           <div class="rn-book" *ngFor="let b of books" [class.locked]="b.premium && !auth.isPremium()"
             (click)="goToBook(b)">
@@ -35,7 +34,6 @@
 
           </div>
           <!-- FIN LIBROS -->
-
         </div>
 
         <button class="rn-arrow">›</button>
