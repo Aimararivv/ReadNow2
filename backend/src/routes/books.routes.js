@@ -1,16 +1,12 @@
 import express from 'express';
 import axios from 'axios';
+import { verifyToken } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
-
-/**
- * 📚 Obtener lista de libros
- * GET /api/books?q=fiction
- */
+/* 📚 LISTA DE LIBROS */
 router.get('/', async (req, res) => {
   try {
     const query = req.query.q || 'fiction';
-
     const response = await axios.get(
       'https://www.googleapis.com/books/v1/volumes',
       {
@@ -20,31 +16,27 @@ router.get('/', async (req, res) => {
         }
       }
     );
-
     const books = response.data.items?.map((b, index) => ({
-      id: b.id, // ✅ ID REAL
+      id: b.id,
       title: b.volumeInfo.title,
       author: b.volumeInfo.authors?.[0] || 'Autor desconocido',
       thumbnail: b.volumeInfo.imageLinks?.thumbnail || null,
-      premium: index % 2 === 0 // 🔒 simulado
+      /* simulación premium */
+      premium: index % 2 === 0
     })) || [];
-
     res.json(books);
-
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error al obtener libros' });
+    res.status(500).json({
+      message: 'Error al obtener libros'
+    });
   }
 });
 
-/**
- * 📖 Obtener libro por ID REAL
- * GET /api/books/:id
- */
-router.get('/:id', async (req, res) => {
+/* 📖 LIBRO POR ID */
+router.get('/:id', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
-
     const response = await axios.get(
       `https://www.googleapis.com/books/v1/volumes/${id}`,
       {
@@ -53,22 +45,21 @@ router.get('/:id', async (req, res) => {
         }
       }
     );
-
     const b = response.data.volumeInfo;
-
-    res.json({
+    const book = {
       id,
       title: b.title,
       author: b.authors?.[0] || 'Autor desconocido',
       thumbnail: b.imageLinks?.thumbnail || null,
       description: b.description || 'Sin descripción',
-      premium: false // aquí luego puedes validar premium real
-    });
-
+      premium: false
+    };
+    res.json(book);
   } catch (error) {
     console.error(error);
-    res.status(404).json({ message: 'Libro no encontrado' });
+    res.status(404).json({
+      message: 'Libro no encontrado'
+    });
   }
 });
-
 export default router;
