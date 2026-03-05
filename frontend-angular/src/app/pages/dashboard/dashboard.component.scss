@@ -1,3 +1,36 @@
+// ════════════════════════════════
+// BREADCRUMB
+// ════════════════════════════════
+.breadcrumb {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 16px 24px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #94a3b8;
+  flex-wrap: wrap;
+  list-style: none;
+
+  a {
+    color: #2e8fd4;
+    text-decoration: none;
+    font-weight: 500;
+    &:hover { text-decoration: underline; }
+  }
+  span { color: #94a3b8; }
+  .current { 
+    color: #1a6fa8; 
+    font-weight: 600; 
+    background: linear-gradient(135deg, #c2e4fb, #e8f7ff);
+    padding: 4px 10px;
+    border-radius: 16px;
+    border: 1.5px solid rgba(91, 184, 245, 0.3);
+    position: relative;
+  }
+}
+
 /* CONTENIDO PRINCIPAL */
 .rn-books-container {
   display: flex;             /* horizontal */
@@ -116,7 +149,6 @@
   font-size: 1.1rem;
   z-index: 5;
 }
-
 
 .rn-book:hover {
   transform: translateY(-8px);

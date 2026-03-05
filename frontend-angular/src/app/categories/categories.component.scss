@@ -1,3 +1,36 @@
+// ════════════════════════════════
+// BREADCRUMB
+// ════════════════════════════════
+.breadcrumb {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 16px 24px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #94a3b8;
+  flex-wrap: wrap;
+  list-style: none;
+
+  a {
+    color: #2e8fd4;
+    text-decoration: none;
+    font-weight: 500;
+    &:hover { text-decoration: underline; }
+  }
+  span { color: #94a3b8; }
+  .current { 
+    color: #1a6fa8; 
+    font-weight: 600; 
+    background: linear-gradient(135deg, #c2e4fb, #e8f7ff);
+    padding: 4px 10px;
+    border-radius: 16px;
+    border: 1.5px solid rgba(91, 184, 245, 0.3);
+    position: relative;
+  }
+}
+
 .categories-page {
   padding: 2rem;
 
@@ -20,6 +53,13 @@
     padding: 1.5rem;
     box-shadow: 0 4px 8px rgba(0,0,0,0.05);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-align: center;
+
+    .category-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
 
     h2 {
       font-size: 1.25rem;
@@ -33,7 +73,7 @@
       margin-bottom: 1rem;
     }
 
-    button {
+    .blue-btn {
       background-color: #0077cc;
       color: white;
       border: none;
