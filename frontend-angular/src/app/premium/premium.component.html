@@ -1,4 +1,4 @@
-<!-- ══════ BREADCRUMB ══════ -->
+<!-- Breadcrumb -->
 <nav class="breadcrumb" aria-label="breadcrumb">
   <a routerLink="/home">Inicio</a>
   <span>›</span>
@@ -7,17 +7,15 @@
   <span class="current">Suscripciones</span>
 </nav>
 
-<!-- ══════ MAIN ══════ -->
+<!-- Main -->
 <main>
 
-  <!-- Header -->
   <div class="page-header">
     <span class="tag-new"> Acceso ilimitado a miles de libros digitales</span>
     <h1>Elige el plan perfecto<br>para <em>tu lectura</em></h1>
     <p>Explora, lee y descubre sin límites. Cancela cuando quieras.</p>
   </div>
 
-  <!-- Active plan banner -->
   <div class="active-banner">
     <div class="banner-left">
       <div class="pulse-dot"></div>
@@ -29,7 +27,6 @@
     <span class="banner-icon">{{ bannerIcon }}</span>
   </div>
 
-  <!-- Filter bar -->
   <div class="filter-bar">
     <div class="filter-label">Filtrar planes</div>
     <div class="filter-toggles">
@@ -57,10 +54,8 @@
     </div>
   </div>
 
-  <!-- Plans grid -->
   <div class="plans-grid">
 
-    <!-- BASIC -->
     <div
       class="plan-card"
       [class.sel-basic]="currentPlan === 'basic'"
@@ -94,7 +89,7 @@
       </button>
     </div>
 
-    <!-- PREMIUM -->
+    <!-- Premium -->
     <div
       class="plan-card"
       [class.sel-premium]="currentPlan === 'premium'"
@@ -131,7 +126,6 @@
 
   </div>
 
-  <!-- Route Guard section -->
   <div class="guard-section">
     <h2>🔐 Control de Acceso por Suscripción</h2>
     <p class="guard-desc">Las rutas protegidas por <strong>Angular Guards</strong> validan tu suscripción antes de permitir el acceso al contenido.</p>
@@ -149,7 +143,7 @@
 
 </main>
 
-<!-- ══════ MODAL ══════ -->
+<!-- Modal -->
 <div class="overlay" [class.open]="modalOpen" (click)="onOverlayClick($event)">
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-head">
@@ -159,7 +153,6 @@
     </div>
     <div class="modal-body">
 
-      <!-- STEP INDICATOR -->
       <div class="steps">
         <div class="step" [ngClass]="getStepClass(1)">
           <span class="step-num">1</span> Tarjeta
@@ -172,10 +165,8 @@
         </div>
       </div>
 
-      <!-- PAYMENT FORM -->
       <div *ngIf="!paymentSuccess">
 
-        <!-- CREDIT CARD 3D -->
         <div class="card-scene">
           <div class="card-inner" [class.flipped]="cardFlipped">
             <div class="card-face card-front">
@@ -207,7 +198,6 @@
           </div>
         </div>
 
-        <!-- FORM -->
         <form [formGroup]="paymentForm" (ngSubmit)="processPayment()" novalidate>
 
           <div class="form-row">
@@ -276,7 +266,7 @@
             </div>
           </div>
 
-          <!-- CAPTCHA -->
+          <!-- Captcha -->
           <div class="captcha-box">
             <div class="captcha-title">🤖 Verificación humana (CAPTCHA)</div>
             <div class="captcha-challenge">
@@ -302,7 +292,6 @@
             </div>
           </div>
 
-          <!-- ORDER SUMMARY -->
           <div class="summary">
             <div class="sum-row"><span>Plan Premium ReadNow</span><span>$99.00 MXN</span></div>
             <div class="sum-row"><span>Cupón: primer mes</span><span class="sum-green">— $0.00</span></div>
@@ -320,7 +309,6 @@
         </form>
       </div>
 
-      <!-- SUCCESS SCREEN -->
       <div class="success-screen" *ngIf="paymentSuccess">
         <div class="success-ring">✓</div>
         <h3>¡Pago Procesado!</h3>
@@ -341,5 +329,4 @@
   </div>
 </div>
 
-<!-- ══════ PRIMENG TOAST (reemplaza el snackbar) ══════ -->
 <p-toast position="bottom-center" [life]="3000"></p-toast>
