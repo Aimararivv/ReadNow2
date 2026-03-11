@@ -98,15 +98,9 @@ export class PremiumComponent implements OnInit, OnDestroy {
     return this.currentPlan === 'premium' ? '👑 Desbloqueado' : '🔒 Premium';
   }
 
-<<<<<<< HEAD
   // Modal
-  modalOpen      = false;
-  isProcessing   = false;
-=======
-  // ── Modal ─────────────────────────────────────────────────────
   modalOpen = false;
   isProcessing = false;
->>>>>>> 080f1bb909979c69e85624ed4fd103b940fd7990
   paymentSuccess = false;
   cardFlipped = false;
 
@@ -135,17 +129,11 @@ export class PremiumComponent implements OnInit, OnDestroy {
     return v ? '•'.repeat(v.length) : '•••';
   }
 
-<<<<<<< HEAD
    
-  captchaA       = 0;
-  captchaB       = 0;
-  captchaInput:   number | null  = null;
-=======
-  // ── CAPTCHA ───────────────────────────────────────────────────
+  // Captcha
   captchaA = 0;
   captchaB = 0;
   captchaInput: number | null = null;
->>>>>>> 080f1bb909979c69e85624ed4fd103b940fd7990
   captchaCorrect: boolean | null = null;
 
   currentStep = 1;
@@ -159,13 +147,9 @@ export class PremiumComponent implements OnInit, OnDestroy {
   private payTimer: any;
 
   constructor(
-<<<<<<< HEAD
-    public  auth:           AuthService,  
-    private fb:             FormBuilder,
-=======
+
     public auth: AuthService,   // public → accesible en template
     private fb: FormBuilder,
->>>>>>> 080f1bb909979c69e85624ed4fd103b940fd7990
     private messageService: MessageService,
   ) { }
 
