@@ -16,10 +16,10 @@ app.use(express.json());
 
 // Rutas
 app.use('/api/books', booksRoutes);
-app.use('/books', booksRoutes); // opcional si la usas
-app.use('/premium', premiumRoutes);
-app.use('/auth', authRoutes);
-app.use('/payment', paymentRoutes);
+app.use('/api/books', booksRoutes); 
+app.use('/api/premium', premiumRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/payment', paymentRoutes);
 
 app.listen(3000, () => {
   console.log('✅ ReadNow corriendo en el puerto 3000');
