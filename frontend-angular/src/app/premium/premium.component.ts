@@ -11,7 +11,7 @@ import { ToastModule } from 'primeng/toast';
 
 import { AuthService } from '../core/services/auth.service';
 
-// ── Interfaces ────────────────────────────────────────────────
+// Interfaces
 export interface RouteItem {
   icon: string;
   name: string;
@@ -26,7 +26,7 @@ export interface Receipt {
   folio: string;
 }
 
-// ── Custom Validators ─────────────────────────────────────────
+// Custom Validators 
 function cardNumberValidator(control: AbstractControl) {
   const val = (control.value ?? '').replace(/\s/g, '');
   return /^\d{16}$/.test(val) ? null : { invalidCardNumber: true };
@@ -40,7 +40,7 @@ function nameValidator(control: AbstractControl) {
     ? null : { invalidName: true };
 }
 
-// ─────────────────────────────────────────────────────────────
+
 @Component({
   selector: 'app-premium',
   standalone: true,
@@ -57,6 +57,7 @@ function nameValidator(control: AbstractControl) {
 })
 export class PremiumComponent implements OnInit, OnDestroy {
 
+  // ── Plan state 
   get currentPlan(): 'basic' | 'premium' {
     return this.auth.isPremium() ? 'premium' : 'basic';
   }
@@ -72,11 +73,11 @@ export class PremiumComponent implements OnInit, OnDestroy {
     return this.currentPlan === 'premium' ? '👑' : '📖';
   }
 
-  // ── Filters ──────────────────────────────────────────────────
+  // Filters 
   activeFilter: 'all' | 'basic' | 'premium' = 'all';
   statusActive = true;
 
-  // ── Routes (Guard section) ───────────────────────────────────
+  // Routes
   routes: RouteItem[] = [
     { icon: '🏠', name: 'Inicio', path: '/home', requiresPremium: false },
     { icon: '📚', name: 'Catálogo', path: '/catalog', requiresPremium: false },
@@ -97,7 +98,7 @@ export class PremiumComponent implements OnInit, OnDestroy {
     return this.currentPlan === 'premium' ? '👑 Desbloqueado' : '🔒 Premium';
   }
 
-  // ── Modal ─────────────────────────────────────────────────────
+  // Modal
   modalOpen = false;
   isProcessing = false;
   paymentSuccess = false;
@@ -105,7 +106,7 @@ export class PremiumComponent implements OnInit, OnDestroy {
 
   receipt: Receipt = { name: '', card: '', date: '', folio: '' };
 
-  // ── Reactive form ─────────────────────────────────────────────
+  // Reactive form 
   paymentForm!: FormGroup;
 
   get cardNameDisplay(): string {
@@ -128,13 +129,13 @@ export class PremiumComponent implements OnInit, OnDestroy {
     return v ? '•'.repeat(v.length) : '•••';
   }
 
-  // ── CAPTCHA ───────────────────────────────────────────────────
+   
+  // Captcha
   captchaA = 0;
   captchaB = 0;
   captchaInput: number | null = null;
   captchaCorrect: boolean | null = null;
 
-  // ── Steps ─────────────────────────────────────────────────────
   currentStep = 1;
 
   getStepClass(step: number): string {
@@ -145,8 +146,8 @@ export class PremiumComponent implements OnInit, OnDestroy {
 
   private payTimer: any;
 
-  // ─────────────────────────────────────────────────────────────
   constructor(
+
     public auth: AuthService,   // public → accesible en template
     private fb: FormBuilder,
     private messageService: MessageService,
@@ -161,7 +162,7 @@ export class PremiumComponent implements OnInit, OnDestroy {
     clearTimeout(this.payTimer);
   }
 
-  // ── Form ──────────────────────────────────────────────────────
+  // Form 
   private buildForm(): void {
     this.paymentForm = this.fb.group({
       cardName: ['', [Validators.required, nameValidator]],
@@ -170,7 +171,7 @@ export class PremiumComponent implements OnInit, OnDestroy {
       cardCvv: ['', [Validators.required, Validators.pattern(/^\d{3}$/)]],
     });
 
-    // Auto-formato número
+    // Número
     this.paymentForm.get('cardNumber')!.valueChanges.subscribe((v: string) => {
       if (!v) return;
       const clean = v.replace(/\D/g, '').slice(0, 16);
@@ -179,7 +180,7 @@ export class PremiumComponent implements OnInit, OnDestroy {
         this.paymentForm.get('cardNumber')!.setValue(formatted, { emitEvent: false });
     });
 
-    // Auto-formato vencimiento
+    // Vencimiento
     this.paymentForm.get('cardExpiry')!.valueChanges.subscribe((v: string) => {
       if (!v) return;
       let clean = v.replace(/\D/g, '').slice(0, 4);
@@ -212,7 +213,7 @@ export class PremiumComponent implements OnInit, OnDestroy {
         : 1;
   }
 
-  // ── CAPTCHA ───────────────────────────────────────────────────
+  
   newCaptcha(): void {
     this.captchaA = Math.floor(Math.random() * 10) + 1;
     this.captchaB = Math.floor(Math.random() * 10) + 1;
@@ -227,9 +228,8 @@ export class PremiumComponent implements OnInit, OnDestroy {
     this.updateStep();
   }
 
-  // ── Modal ─────────────────────────────────────────────────────
+  // Modal
   openModal(): void {
-    // ← Mantiene tu validación original de login
     if (!this.auth.getUser()) {
       this.messageService.add({
         severity: 'warn',
@@ -263,7 +263,7 @@ export class PremiumComponent implements OnInit, OnDestroy {
     this.newCaptcha();
   }
 
-  // ── Procesar pago ─────────────────────────────────────────────
+  // Pago
   processPayment(): void {
     this.paymentForm.markAllAsTouched();
     if (this.paymentForm.invalid) return;
@@ -298,8 +298,7 @@ export class PremiumComponent implements OnInit, OnDestroy {
     }, 2200);
   }
 
-  // ── Activar premium  ──────────────────────────────────────────
-  // Reutiliza EXACTAMENTE tu lógica: auth.login({ ...user, role: 'PREMIUM' })
+  // Activar premium
   activatePremium(): void {
     const user = this.auth.getUser();
     if (user) {
@@ -314,7 +313,7 @@ export class PremiumComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ── Degradar plan ─────────────────────────────────────────────
+  // Degradar plan
   downgrade(): void {
     if (!window.confirm('¿Deseas volver al plan Básico gratuito? Perderás acceso a contenido premium.'))
       return;
@@ -330,7 +329,6 @@ export class PremiumComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ── Filtros ───────────────────────────────────────────────────
   filterPlans(type: 'all' | 'basic' | 'premium'): void {
     this.activeFilter = type;
     this.messageService.add({
