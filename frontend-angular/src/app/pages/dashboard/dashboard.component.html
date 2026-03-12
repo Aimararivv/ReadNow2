@@ -53,6 +53,7 @@
              (click)="goToBook(rec)">
           <div class="rn-rec-dot"></div>
           {{rec.title}}
+          <span *ngIf="rec.premium && !auth.isPremium()"> Premium</span>
           <span *ngIf="rec.premium && !auth.isPremium()">🔒</span>
         </div>
 
