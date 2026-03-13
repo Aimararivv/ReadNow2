@@ -30,24 +30,14 @@
   <div class="filter-bar">
     <div class="filter-label">Filtrar planes</div>
     <div class="filter-toggles">
-      <button
-        class="ftog"
-        [class.active-tog]="activeFilter === 'all'"
-        (click)="filterPlans('all')">Todos</button>
-      <button
-        class="ftog"
-        [class.active-tog]="activeFilter === 'basic'"
-        (click)="filterPlans('basic')">📖 Básico</button>
-      <button
-        class="ftog"
-        [class.active-tog]="activeFilter === 'premium'"
-        (click)="filterPlans('premium')">👑 Premium</button>
+      <button class="ftog" [class.active-tog]="activeFilter === 'all'" (click)="filterPlans('all')">Todos</button>
+      <button class="ftog" [class.active-tog]="activeFilter === 'basic'" (click)="filterPlans('basic')">📖
+        Básico</button>
+      <button class="ftog" [class.active-tog]="activeFilter === 'premium'" (click)="filterPlans('premium')">👑
+        Premium</button>
     </div>
     <div class="filter-status">
-      <button
-        class="fstatus"
-        [class.active-tog]="statusActive"
-        (click)="toggleStatusFilter()">
+      <button class="fstatus" [class.active-tog]="statusActive" (click)="toggleStatusFilter()">
         <span class="fstatus-dot" [class.dot-active]="statusActive"></span>
         <span>{{ statusActive ? 'Estado: Activo' : 'Estado: Todos' }}</span>
       </button>
@@ -56,15 +46,9 @@
 
   <div class="plans-grid">
 
-    <div
-      class="plan-card"
-      [class.sel-basic]="currentPlan === 'basic'"
-      [class.hidden-card]="activeFilter === 'premium'"
+    <div class="plan-card" [class.sel-basic]="currentPlan === 'basic'" [class.hidden-card]="activeFilter === 'premium'"
       data-type="basic">
-      <span
-        class="plan-pill"
-        [class.pill-active]="currentPlan === 'basic'"
-        [class.pill-free]="currentPlan !== 'basic'"
+      <span class="plan-pill" [class.pill-active]="currentPlan === 'basic'" [class.pill-free]="currentPlan !== 'basic'"
         *ngIf="currentPlan === 'basic'">✓ Plan Actual</span>
       <span class="plan-emoji">📖</span>
       <div class="plan-name">Básico</div>
@@ -79,25 +63,16 @@
         <li><span class="fi">🔒</span><span class="locked">Sin descarga offline</span></li>
         <li><span class="fi">🔒</span><span class="locked">Sin recomendaciones con IA</span></li>
       </ul>
-      <button
-        class="plan-btn"
-        [class.btn-current]="currentPlan === 'basic'"
-        [class.btn-basic]="currentPlan === 'premium'"
-        [disabled]="currentPlan === 'basic'"
-        (click)="downgrade()">
+      <button class="plan-btn" [class.btn-current]="currentPlan === 'basic'"
+        [class.btn-basic]="currentPlan === 'premium'" [disabled]="currentPlan === 'basic'" (click)="openCancelModal()">
         {{ currentPlan === 'basic' ? 'Plan Actual' : 'Cambiar a Básico' }}
       </button>
     </div>
 
     <!-- Premium -->
-    <div
-      class="plan-card"
-      [class.sel-premium]="currentPlan === 'premium'"
-      [class.hidden-card]="activeFilter === 'basic'"
-      data-type="premium">
-      <span
-        class="plan-pill"
-        [class.pill-active]="currentPlan === 'premium'"
+    <div class="plan-card" [class.sel-premium]="currentPlan === 'premium'"
+      [class.hidden-card]="activeFilter === 'basic'" data-type="premium">
+      <span class="plan-pill" [class.pill-active]="currentPlan === 'premium'"
         [class.pill-popular]="currentPlan !== 'premium'">
         {{ currentPlan === 'premium' ? '✓ Plan Actual' : '⭐ Más Popular' }}
       </span>
@@ -114,12 +89,8 @@
         <li><span class="fi">✅</span> Historial de lectura completo</li>
         <li><span class="fi">✅</span> Acceso anticipado a novedades</li>
       </ul>
-      <button
-        class="plan-btn"
-        [class.btn-premium]="currentPlan !== 'premium'"
-        [class.btn-current]="currentPlan === 'premium'"
-        [disabled]="currentPlan === 'premium'"
-        (click)="openModal()">
+      <button class="plan-btn" [class.btn-premium]="currentPlan !== 'premium'"
+        [class.btn-current]="currentPlan === 'premium'" [disabled]="currentPlan === 'premium'" (click)="openModal()">
         {{ currentPlan === 'premium' ? 'Plan Actual' : '🚀 Obtener Premium' }}
       </button>
     </div>
@@ -128,7 +99,8 @@
 
   <div class="guard-section">
     <h2>🔐 Control de Acceso por Suscripción</h2>
-    <p class="guard-desc">Las rutas protegidas por <strong>Angular Guards</strong> validan tu suscripción antes de permitir el acceso al contenido.</p>
+    <p class="guard-desc">Las rutas protegidas por <strong>Angular Guards</strong> validan tu suscripción antes de
+      permitir el acceso al contenido.</p>
     <div class="routes-grid">
       <div class="route-card" *ngFor="let route of routes">
         <span class="route-icon">{{ route.icon }}</span>
@@ -171,7 +143,10 @@
           <div class="card-inner" [class.flipped]="cardFlipped">
             <div class="card-face card-front">
               <div class="cf-chip">
-                <div></div><div></div><div></div><div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
               </div>
               <div class="cf-brand">ReadNow</div>
               <div class="cf-num">{{ cardNumberDisplay }}</div>
@@ -203,13 +178,8 @@
           <div class="form-row">
             <div class="field">
               <label>Nombre del titular</label>
-              <input
-                type="text"
-                formControlName="cardName"
-                placeholder="Ej. María García"
-                maxlength="26"
-                (focus)="cardFlipped = false"
-                [class.ok]="isFieldValid('cardName')"
+              <input type="text" formControlName="cardName" placeholder="Ej. María García" maxlength="26"
+                (focus)="cardFlipped = false" [class.ok]="isFieldValid('cardName')"
                 [class.bad]="isFieldInvalid('cardName')">
               <span class="ferr" *ngIf="isFieldInvalid('cardName')">
                 Ingresa el nombre completo (mín. 3 letras)
@@ -220,13 +190,8 @@
           <div class="form-row">
             <div class="field">
               <label>Número de tarjeta</label>
-              <input
-                type="text"
-                formControlName="cardNumber"
-                placeholder="0000 0000 0000 0000"
-                maxlength="19"
-                (focus)="cardFlipped = false"
-                [class.ok]="isFieldValid('cardNumber')"
+              <input type="text" formControlName="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19"
+                (focus)="cardFlipped = false" [class.ok]="isFieldValid('cardNumber')"
                 [class.bad]="isFieldInvalid('cardNumber')">
               <span class="ferr" *ngIf="isFieldInvalid('cardNumber')">
                 Ingresa los 16 dígitos correctamente
@@ -237,13 +202,8 @@
           <div class="form-row two">
             <div class="field">
               <label>Fecha de vencimiento</label>
-              <input
-                type="text"
-                formControlName="cardExpiry"
-                placeholder="MM/AA"
-                maxlength="5"
-                (focus)="cardFlipped = false"
-                [class.ok]="isFieldValid('cardExpiry')"
+              <input type="text" formControlName="cardExpiry" placeholder="MM/AA" maxlength="5"
+                (focus)="cardFlipped = false" [class.ok]="isFieldValid('cardExpiry')"
                 [class.bad]="isFieldInvalid('cardExpiry')">
               <span class="ferr" *ngIf="isFieldInvalid('cardExpiry')">
                 Formato inválido (MM/AA)
@@ -251,14 +211,8 @@
             </div>
             <div class="field">
               <label>CVV</label>
-              <input
-                type="password"
-                formControlName="cardCvv"
-                placeholder="•••"
-                maxlength="3"
-                (focus)="cardFlipped = true"
-                (blur)="cardFlipped = false"
-                [class.ok]="isFieldValid('cardCvv')"
+              <input type="password" formControlName="cardCvv" placeholder="•••" maxlength="3"
+                (focus)="cardFlipped = true" (blur)="cardFlipped = false" [class.ok]="isFieldValid('cardCvv')"
                 [class.bad]="isFieldInvalid('cardCvv')">
               <span class="ferr" *ngIf="isFieldInvalid('cardCvv')">
                 CVV debe tener 3 dígitos
@@ -274,15 +228,9 @@
               <button type="button" class="captcha-refresh" (click)="newCaptcha()" title="Nueva pregunta">🔄</button>
             </div>
             <div class="captcha-input-row">
-              <input
-                type="number"
-                class="captcha-input"
-                [(ngModel)]="captchaInput"
-                [ngModelOptions]="{standalone: true}"
-                placeholder="Escribe el resultado..."
-                (input)="checkCaptcha()"
-                [class.ok]="captchaCorrect === true"
-                [class.bad]="captchaCorrect === false && captchaInput !== null">
+              <input type="number" class="captcha-input" [(ngModel)]="captchaInput"
+                [ngModelOptions]="{standalone: true}" placeholder="Escribe el resultado..." (input)="checkCaptcha()"
+                [class.ok]="captchaCorrect === true" [class.bad]="captchaCorrect === false && captchaInput !== null">
               <span class="captcha-status">
                 {{ captchaCorrect === true ? '✅' : captchaCorrect === false && captchaInput !== null ? '❌' : '⬜' }}
               </span>
@@ -298,10 +246,7 @@
             <div class="sum-row"><span>Total a cobrar hoy</span><span>$99.00 MXN</span></div>
           </div>
 
-          <button
-            type="submit"
-            class="pay-btn"
-            [disabled]="isProcessing">
+          <button type="submit" class="pay-btn" [disabled]="isProcessing">
             <div class="spinner" *ngIf="isProcessing"></div>
             <span>{{ isProcessing ? 'Procesando pago...' : '🔒 Confirmar Pago Simulado' }}</span>
           </button>
@@ -312,7 +257,8 @@
       <div class="success-screen" *ngIf="paymentSuccess">
         <div class="success-ring">✓</div>
         <h3>¡Pago Procesado!</h3>
-        <p>Tu membresía <strong>Premium</strong> ha sido activada.<br>Ahora tienes acceso ilimitado a toda la biblioteca digital.</p>
+        <p>Tu membresía <strong>Premium</strong> ha sido activada.<br>Ahora tienes acceso ilimitado a toda la biblioteca
+          digital.</p>
         <div class="receipt">
           <div class="receipt-title">🧾 Comprobante de simulación</div>
           <div class="rec-row"><span>Plan adquirido</span><span><strong>Premium ReadNow</strong></span></div>
@@ -329,4 +275,46 @@
   </div>
 </div>
 
+<!-- Modal cancelar suscripción -->
+<div class="overlay" [class.open]="cancelModalOpen" (click)="cancelOverlayClick($event)">
+  <div class="modal cancel-modal" (click)="$event.stopPropagation()">
+
+    <div class="modal-head cancel-head">
+      <h2>⚠️ Cancelar suscripción Premium</h2>
+      <button class="modal-close" (click)="closeCancelModal()">✕</button>
+    </div>
+
+    <div class="modal-body cancel-body">
+
+      <p class="cancel-text">
+        Si cambias al <strong>Plan Básico</strong> perderás los beneficios Premium:
+      </p>
+
+      <ul class="cancel-list">
+        <li>🔒 Acceso a libros premium</li>
+        <li>⬇️ Descargas offline</li>
+        <li>🤖 Recomendaciones con IA</li>
+        <li>🚫 Experiencia sin anuncios</li>
+      </ul>
+
+      <p class="cancel-warning">
+        Puedes volver a activarlo cuando quieras.
+      </p>
+
+      <div class="cancel-actions">
+
+        <button class="cancel-btn back" (click)="closeCancelModal()">
+          Seguir con Premium
+        </button>
+
+        <button class="cancel-btn confirm" (click)="confirmDowngrade()">
+          Cancelar suscripción
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
 <p-toast position="bottom-center" [life]="3000" styleClass="readnow-toast"></p-toast>

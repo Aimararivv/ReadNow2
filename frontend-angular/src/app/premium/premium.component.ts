@@ -1,14 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  ReactiveFormsModule, FormsModule,
-  FormBuilder, FormGroup,
-  Validators, AbstractControl
-} from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-
+import { SubscriptionService } from '../core/services/subscription.service';
 import { AuthService } from '../core/services/auth.service';
 
 // Interfaces
@@ -103,7 +99,7 @@ export class PremiumComponent implements OnInit, OnDestroy {
   isProcessing = false;
   paymentSuccess = false;
   cardFlipped = false;
-
+  cancelModalOpen = false;
   receipt: Receipt = { name: '', card: '', date: '', folio: '' };
 
   // Reactive form 
@@ -129,7 +125,6 @@ export class PremiumComponent implements OnInit, OnDestroy {
     return v ? '•'.repeat(v.length) : '•••';
   }
 
-   
   // Captcha
   captchaA = 0;
   captchaB = 0;
@@ -147,10 +142,10 @@ export class PremiumComponent implements OnInit, OnDestroy {
   private payTimer: any;
 
   constructor(
-
     public auth: AuthService,   // public → accesible en template
     private fb: FormBuilder,
     private messageService: MessageService,
+    private subscriptionService: SubscriptionService
   ) { }
 
   ngOnInit(): void {
@@ -213,7 +208,6 @@ export class PremiumComponent implements OnInit, OnDestroy {
         : 1;
   }
 
-  
   newCaptcha(): void {
     this.captchaA = Math.floor(Math.random() * 10) + 1;
     this.captchaB = Math.floor(Math.random() * 10) + 1;
@@ -267,6 +261,7 @@ export class PremiumComponent implements OnInit, OnDestroy {
   processPayment(): void {
     this.paymentForm.markAllAsTouched();
     if (this.paymentForm.invalid) return;
+    if (this.isProcessing) return;
 
     if (!this.captchaCorrect) {
       this.messageService.add({
@@ -301,32 +296,77 @@ export class PremiumComponent implements OnInit, OnDestroy {
   // Activar premium
   activatePremium(): void {
     const user = this.auth.getUser();
-    if (user) {
-      this.auth.login({ ...user, role: 'PREMIUM' });
+
+    if (!user) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: '⚠️ Acceso requerido',
+        detail: 'Debes iniciar sesión primero',
+        life: 3000
+      });
+      return;
     }
-    this.closeModal();
-    this.messageService.add({
-      severity: 'success',
-      summary: '🎉 ¡Felicidades!',
-      detail: 'Ahora eres usuario PREMIUM 👑 de ReadNow',
-      life: 3000,
-    });
+
+    const userId = user.id || user.id; // <- importante
+
+    if (!userId) {
+      this.messageService.add({
+        severity: 'error',
+        summary: '⚠️ Error interno',
+        detail: 'No se pudo obtener el usuario',
+        life: 3000
+      });
+      return;
+    }
+
+    this.subscriptionService.updateRole(userId, 'PREMIUM')
+      .subscribe({
+        next: (res) => {
+          this.auth.saveSession(res.user, this.auth.getToken()!);
+          this.closeModal();
+          this.messageService.add({
+            severity: 'success',
+            summary: '🎉 ¡Felicidades!',
+            detail: 'Ahora eres usuario PREMIUM 👑',
+            life: 3000
+          });
+        },
+        error: () => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudo activar premium',
+            life: 3000
+          });
+        }
+      });
   }
 
   // Degradar plan
   downgrade(): void {
-    if (!window.confirm('¿Deseas volver al plan Básico gratuito? Perderás acceso a contenido premium.'))
-      return;
+
     const user = this.auth.getUser();
-    if (user) {
-      this.auth.login({ ...user, role: 'FREE' });
-    }
-    this.messageService.add({
-      severity: 'info',
-      summary: '🚀 Plan cambiado',
-      detail: 'Has vuelto al plan Básico',
-      life: 3000,
-    });
+
+    console.log("USER COMPLETO:", user);
+    console.log("ID:", user?.id);
+    console.log("ID_USUARIO:", user?.id);
+
+    if (!user) return;
+
+    this.subscriptionService.updateRole(user.id, 'FREE')
+      .subscribe({
+        next: (res) => {
+          this.auth.login(res.user);
+
+          this.messageService.add({
+            severity: 'info',
+            summary: '🚀 Plan cambiado',
+            detail: 'Ahora tienes el plan Básico',
+            life: 3000
+          });
+        }
+      });
+
   }
 
   filterPlans(type: 'all' | 'basic' | 'premium'): void {
@@ -349,5 +389,29 @@ export class PremiumComponent implements OnInit, OnDestroy {
         : 'Mostrando todas las suscripciones.',
       life: 3000,
     });
+  }
+
+  // Modal cancelar suscripción
+  openCancelModal(): void {
+    if (!this.auth.isPremium()) return;
+    this.cancelModalOpen = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeCancelModal(): void {
+    this.cancelModalOpen = false;
+    document.body.style.overflow = '';
+  }
+
+  cancelOverlayClick(event: MouseEvent): void {
+    if ((event.target as HTMLElement).classList.contains('overlay')) {
+      this.closeCancelModal();
+    }
+  }
+
+  confirmDowngrade(): void {
+    this.closeCancelModal();
+    this.downgrade();
+
   }
 }

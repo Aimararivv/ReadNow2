@@ -40,14 +40,14 @@ export class AuthService {
   saveSession(user: any, token: string) {
 
     const mappedUser: User = {
-      id: user.id_usuario,
+      id: Number(user.id_usuario),
       name: user.nombre,
-      role: user.role || 'FREE'
+      role: user.role ?? 'FREE'
     };
 
     this.user = mappedUser;
     this.token = token;
-
+    
     localStorage.setItem('user', JSON.stringify(mappedUser));
     localStorage.setItem('token', token);
   }

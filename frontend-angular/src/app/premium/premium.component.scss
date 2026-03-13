@@ -632,3 +632,65 @@ main {
   from { transform: translateY(18px); opacity: 0; }
   to   { transform: translateY(0); opacity: 1; }
 }
+
+.cancel-head{
+  background: linear-gradient(135deg,#ef4444,#b91c1c);
+}
+
+.cancel-text{
+  font-size:15px;
+  color:var(--g600);
+  margin-bottom:12px;
+}
+
+.cancel-list{
+  margin:10px 0 18px;
+  padding-left:0;
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.cancel-list li{
+  font-size:14px;
+  color:var(--g600);
+}
+
+.cancel-warning{
+  font-size:13px;
+  color:var(--g400);
+  margin-bottom:20px;
+}
+
+.cancel-actions{
+  display:flex;
+  gap:10px;
+}
+
+.cancel-btn{
+  flex:1;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all .25s;
+}
+
+.cancel-btn.back{
+  background:#e2e8f0;
+}
+
+.cancel-btn.back:hover{
+  background:#cbd5e1;
+}
+
+.cancel-btn.confirm{
+  background:#ef4444;
+  color:white;
+}
+
+.cancel-btn.confirm:hover{
+  background:#dc2626;
+}
