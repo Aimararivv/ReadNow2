@@ -233,7 +233,7 @@ export class PremiumComponent implements OnInit, OnDestroy {
     if (!this.auth.getUser()) {
       this.messageService.add({
         severity: 'warn',
-        summary: 'Acceso requerido',
+        summary: '⚠️ Acceso requerido',
         detail: 'Debes iniciar sesión primero',
         life: 3000,
       });
@@ -271,7 +271,7 @@ export class PremiumComponent implements OnInit, OnDestroy {
     if (!this.captchaCorrect) {
       this.messageService.add({
         severity: 'warn',
-        summary: 'CAPTCHA incompleto',
+        summary: '⚠️ CAPTCHA incompleto',
         detail: 'Completa la verificación antes de continuar',
         life: 3000,
       });
@@ -307,9 +307,9 @@ export class PremiumComponent implements OnInit, OnDestroy {
     this.closeModal();
     this.messageService.add({
       severity: 'success',
-      summary: '¡Felicidades!',
+      summary: '🎉 ¡Felicidades!',
       detail: 'Ahora eres usuario PREMIUM 👑 de ReadNow',
-      life: 4000,
+      life: 3000,
     });
   }
 
@@ -323,7 +323,7 @@ export class PremiumComponent implements OnInit, OnDestroy {
     }
     this.messageService.add({
       severity: 'info',
-      summary: 'Plan cambiado',
+      summary: '🚀 Plan cambiado',
       detail: 'Has vuelto al plan Básico',
       life: 3000,
     });
@@ -333,9 +333,9 @@ export class PremiumComponent implements OnInit, OnDestroy {
     this.activeFilter = type;
     this.messageService.add({
       severity: 'info',
-      summary: 'Filtro aplicado',
+      summary: '✨ Filtro aplicado',
       detail: type === 'all' ? 'Mostrando todos los planes.' : `Filtrando: plan ${type}.`,
-      life: 2500,
+      life: 3000,
     });
   }
 
@@ -343,11 +343,11 @@ export class PremiumComponent implements OnInit, OnDestroy {
     this.statusActive = !this.statusActive;
     this.messageService.add({
       severity: 'info',
-      summary: 'Filtro de estado',
+      summary: '✨ Filtro de estado',
       detail: this.statusActive
         ? 'Mostrando suscripciones activas.'
         : 'Mostrando todas las suscripciones.',
-      life: 2500,
+      life: 3000,
     });
   }
 }

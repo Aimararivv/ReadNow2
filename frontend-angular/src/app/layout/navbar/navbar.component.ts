@@ -174,9 +174,9 @@ export class NavbarComponent {
 
         this.messageService.add({
           severity: 'success',
-          summary: 'Bienvenido',
+          summary: '🎉 Bienvenido',
           detail: 'Has iniciado sesión correctamente',
-          life: 2000
+          life: 3000
         });
 
       },
@@ -186,7 +186,7 @@ export class NavbarComponent {
           severity: 'error',
           summary: 'Error',
           detail: 'Correo o contraseña incorrectos',
-          life: 2000
+          life: 3000
         });
 
       }
@@ -234,9 +234,9 @@ export class NavbarComponent {
 
         this.messageService.add({
           severity: 'success',
-          summary: 'Registro exitoso',
+          summary: '😎 Registro exitoso',
           detail: 'Cuenta creada correctamente',
-          life: 2000
+          life: 3000
         });
 
         this.switchToLogin();
@@ -247,9 +247,9 @@ export class NavbarComponent {
 
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
+          summary: '🚨 Error',
           detail: 'No se pudo registrar',
-          life: 2000
+          life: 3000
         });
 
       }

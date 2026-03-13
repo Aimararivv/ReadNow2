@@ -1,5 +1,3 @@
-
-
 <nav class="rn-navbar">
   <!-- IZQUIERDA -->
   <div class="rn-left">
@@ -48,11 +46,9 @@
         <!-- PASSWORD -->
         <div class="form-group">
           <label for="loginPassword">Contraseña</label>
-
           <div class="password-input-wrapper">
             <input id="loginPassword" [type]="showLoginPassword ? 'text' : 'password'" formControlName="password"
               placeholder="••••••••" [class.invalid]="form.get('password')?.invalid && form.get('password')?.touched">
-
             <span class="toggle-password" (click)="showLoginPassword = !showLoginPassword">
               {{ showLoginPassword ? '🙈' : '👀' }}
             </span>
@@ -62,7 +58,6 @@
         <button type="submit" [disabled]="form.invalid">
           Entrar
         </button>
-
         <div class="register-link">
           ¿No tienes cuenta?
           <span (click)="showRegisterModal()" class="register-text">
@@ -75,21 +70,17 @@
 </nav>
 
 <!-- ================= REGISTRO MODAL ================= -->
-
 <div class="modal-overlay" *ngIf="showRegister" (click)="closeRegisterModal($event)">
   <div class="register-modal">
 
     <button class="close-btn" (click)="closeRegisterModal()">
       &times;
     </button>
-
     <h2 class="modal-title">Crear Cuenta</h2>
     <p class="modal-subtitle">
       Únete a ReadNow y descubre miles de libros
     </p>
-
     <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="register-form">
-
       <!-- EMAIL -->
       <div class="form-group">
         <label for="email">Correo Electrónico</label>
@@ -99,7 +90,6 @@
           Ingresa un correo válido
         </div>
       </div>
-
       <!-- USERNAME -->
       <div class="form-group">
         <label for="username">Nombre de Usuario</label>
@@ -114,12 +104,10 @@
       <!-- PASSWORD -->
       <div class="form-group">
         <label for="password">Contraseña</label>
-
         <div class="password-input-wrapper">
           <input id="password" [type]="showRegisterPassword ? 'text' : 'password'" formControlName="password"
             placeholder="••••••••"
             [class.invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
-
           <span class="toggle-password" (click)="showRegisterPassword = !showRegisterPassword">
             {{ showRegisterPassword ? '🙈' : '👀' }}
           </span>
@@ -167,3 +155,4 @@
 
   </div>
 </div>
+
