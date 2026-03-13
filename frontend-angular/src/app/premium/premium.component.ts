@@ -334,7 +334,7 @@ export class PremiumComponent implements OnInit, OnDestroy {
         error: () => {
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
+            summary: '⚠️ Error',
             detail: 'No se pudo activar premium',
             life: 3000
           });
