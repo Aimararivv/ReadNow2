@@ -70,7 +70,7 @@ export const login = async (req, res) => {
     try {
 
         const result = await pool.query(
-            `SELECT * FROM usuarios WHERE correo=$1`,
+            "SELECT id_usuario, nombre, correo, password, role FROM usuarios WHERE correo = $1",
             [correo]
         );
 
@@ -110,6 +110,83 @@ export const login = async (req, res) => {
         console.error("ERROR LOGIN:", error);
         res.status(500).json({
             error: "Error en login"
+        });
+    }
+};
+
+/* ================= UPDATE PROFILE ================= */
+export const updateProfile = async (req, res) => {
+    const { name, email, password } = req.body;
+    const userId = req.user.id; // ID del usuario desde el token
+
+    try {
+        // Construir consulta dinámica
+        let updateFields = [];
+        let updateValues = [];
+        let paramIndex = 1;
+
+        if (name && name.trim()) {
+            updateFields.push(`nombre = $${paramIndex}`);
+            updateValues.push(name.trim());
+            paramIndex++;
+        }
+
+        if (email && email.trim()) {
+            updateFields.push(`correo = $${paramIndex}`);
+            updateValues.push(email.trim());
+            paramIndex++;
+        }
+
+        if (password && password.trim()) {
+            const hash = await bcrypt.hash(password, 10);
+            updateFields.push(`password = $${paramIndex}`);
+            updateValues.push(hash);
+            paramIndex++;
+        }
+
+        // Si no hay campos para actualizar
+        if (updateFields.length === 0) {
+            return res.status(400).json({
+                message: "No hay campos para actualizar"
+            });
+        }
+
+        // Agregar el ID al final de los valores
+        updateValues.push(userId);
+
+        // Construir y ejecutar la consulta
+        const updateQuery = `
+            UPDATE usuarios 
+            SET ${updateFields.join(', ')} 
+            WHERE id_usuario = $${paramIndex}
+            RETURNING id_usuario, nombre, correo, role
+        `;
+
+        const result = await pool.query(updateQuery, updateValues);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                message: "Usuario no encontrado"
+            });
+        }
+
+        res.json({
+            message: "Perfil actualizado exitosamente",
+            user: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error("ERROR UPDATE PROFILE:", error);
+        
+        // Manejar error de correo duplicado
+        if (error.code === '23505') {
+            return res.status(400).json({
+                message: "El correo electrónico ya está en uso"
+            });
+        }
+        
+        res.status(500).json({
+            error: "Error al actualizar perfil"
         });
     }
 };
