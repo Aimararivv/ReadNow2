@@ -28,6 +28,10 @@ export class DashboardComponent implements OnInit {
     public auth: AuthService
   ) { }
 
+  goToHome() {
+    this.router.navigate(['/home']);
+  }
+
   ngOnInit() {
     this.bookService.getBooks().subscribe(data => {
       this.books = data;

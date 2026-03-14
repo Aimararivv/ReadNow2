@@ -51,6 +51,14 @@ export class CatalogComponent implements OnInit {
     private router: Router
   ) {}
 
+  goToHome() {
+    this.router.navigate(['/home']);
+  }
+
+  goToCategories() {
+    this.router.navigate(['/categories']);
+  }
+
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       const category = params['category'];

@@ -26,8 +26,8 @@
   <!-- DERECHA -->
   <div class="rn-right">
 
-    <!-- BOTÓN USUARIO -->
-    <button class="user-btn" (click)="toggleLogin()">👤</button>
+    <!-- BOTÓN USUARIO (SOLO PARA NO LOGUEADOS) -->
+    <button class="user-btn" (click)="toggleLogin()" *ngIf="!auth.isLogged()">👤</button>
 
     <!-- LOGIN FLOAT -->
     <div class="login-float" *ngIf="showLogin">
@@ -66,6 +66,26 @@
         </div>
       </form>
     </div>
+
+    <!-- PERFIL DROPDOWN (SOLO PARA LOGUEADOS) -->
+    <div *ngIf="auth.isLogged()" class="profile-dropdown">
+      <button class="profile-btn" (click)="toggleProfileDropdown()">
+        <span class="profile-icon">👤</span>
+        <span class="profile-name">{{ auth.getUser()?.name || 'Usuario' }}</span>
+      </button>
+      
+      <div class="profile-menu" *ngIf="showProfileDropdown">
+        <div class="profile-option" (click)="goToProfile()">
+          <span class="option-icon">👤</span>
+          <span class="option-text">Perfil</span>
+        </div>
+        <div class="profile-option logout" (click)="logout()">
+          <span class="option-icon">🚪</span>
+          <span class="option-text">Cerrar Sesión</span>
+        </div>
+      </div>
+    </div>
+
   </div>
 </nav>
 
@@ -155,4 +175,3 @@
 
   </div>
 </div>
-

@@ -27,9 +27,29 @@ export const verifyToken = (req, res, next) => {
  * Debe ejecutarse después de verifyToken
  */
 export const requirePremium = (req, res, next) => {
-  // verificamos que req.user exista y tenga rol 'premium'
-  if (!req.user || req.user.role !== 'premium') {
-    return res.status(403).json({ message: "Acceso premium requerido" });
+  if (!req.user || req.user.role !== 'PREMIUM') {
+    return res.status(403).json({
+      message: "Acceso premium requerido"
+    });
   }
   next();
+};
+
+export const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    if (!token) {
+        return res.status(401).json({
+            message: "Token requerido"
+        });
+    }
+    jwt.verify(token, process.env.JWT_SECRET || "secret", (err, decoded) => {
+        if (err) {
+            return res.status(403).json({
+                message: "Token inválido o expirado"
+            });
+        }
+        req.user = decoded;
+        next();
+    });
 };

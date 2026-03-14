@@ -11,8 +11,19 @@ export class SubscriptionService {
 
   constructor(private http: HttpClient) {}
 
-  updateRole(id:number, role:string):Observable<any>{
-    return this.http.put(`${this.API}/update-role/${id}`, { role });
-  }
+  updateRole(
+    id:number,
+    role:string,
+    cardYear?:string,
+    cardNumber?:string,
+    cvv?:string
+  ):Observable<any>{
 
+    return this.http.put(`${this.API}/update-role/${id}`,{
+      role,
+      cardYear,
+      cardNumber,
+      cvv
+    });
+  }
 }

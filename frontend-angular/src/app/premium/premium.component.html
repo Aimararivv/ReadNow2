@@ -1,8 +1,8 @@
 <!-- Breadcrumb -->
 <nav class="breadcrumb" aria-label="breadcrumb">
-  <a routerLink="/home">Inicio</a>
+  <a (click)="goToHome()" style="cursor: pointer;">Inicio</a>
   <span>›</span>
-  <a routerLink="/catalog">Catálogo</a>
+  <a (click)="goToCatalog()" style="cursor: pointer;">Catálogo</a>
   <span>›</span>
   <span class="current">Suscripciones</span>
 </nav>
@@ -178,7 +178,7 @@
           <div class="form-row">
             <div class="field">
               <label>Nombre del titular</label>
-              <input type="text" formControlName="cardName" placeholder="Ej. María García" maxlength="26"
+              <input type="text" formControlName="cardName" placeholder="Ej. Cristiano Ronaldo" maxlength="30"
                 (focus)="cardFlipped = false" [class.ok]="isFieldValid('cardName')"
                 [class.bad]="isFieldInvalid('cardName')">
               <span class="ferr" *ngIf="isFieldInvalid('cardName')">

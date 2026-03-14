@@ -1,0 +1,174 @@
+<div class="profile-page">
+  <!-- NOTIFICACIONES -->
+  <p-toast position="top-right"></p-toast>
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb" aria-label="breadcrumb">
+    <a (click)="goToHome()" style="cursor: pointer;">Inicio</a>
+    <span>›</span>
+    <span class="current">Perfil</span>
+  </nav>
+
+  <!-- Contenedor principal -->
+  <div class="profile-container">
+    
+    <!-- Header del perfil -->
+    <div class="profile-header">
+      <div class="profile-avatar">
+        <div class="avatar-circle">
+          {{ getInitials(userInfo?.name) }}
+        </div>
+        <div class="status-indicator" [class.premium]="isPremium" [class.admin]="isAdmin" [class.basic]="!isPremium && !isAdmin">
+          {{ isPremium ? '👑' : isAdmin ? '🛡️' : '📖' }}
+        </div>
+      </div>
+      
+      <div class="profile-info">
+        <h1 class="profile-name">{{ userInfo?.name || 'Usuario' }}</h1>
+        <p class="profile-email">{{ userInfo?.email || 'usuario&#64;readnow.com' }}</p>
+        <div class="profile-badges">
+          <span class="badge" [class.premium-badge]="isPremium" [class.admin-badge]="isAdmin">
+            {{ isPremium ? 'PREMIUM' : isAdmin ? 'ADMIN' : 'BÁSICO' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de información detallada -->
+    <div class="profile-content">
+      
+      <!-- Información personal -->
+      <div class="info-section">
+        <h2 class="section-title">
+          <span class="icon">👤</span>
+          Información Personal
+        </h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Nombre de usuario</label>
+            <p>{{ userInfo?.name || 'No disponible' }}</p>
+          </div>
+          <div class="info-item">
+            <label>Correo electrónico</label>
+            <p>{{ userInfo?.email || 'usuario&#64;readnow.com' }}</p>
+          </div>
+          <div class="info-item">
+            <label>Fecha de registro</label>
+            <p>{{ getFormattedDate() }}</p>
+          </div>
+          <div class="info-item">
+            <label>Estado de cuenta</label>
+            <p>
+              <span class="status-text" [class.premium]="isPremium" [class.admin]="isAdmin">
+                {{ isPremium ? 'Premium Activo' : isAdmin ? 'Administrador' : 'Básico' }}
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estadísticas -->
+      <div class="info-section">
+        <h2 class="section-title">
+          <span class="icon">📊</span>
+          Estadísticas de Lectura
+        </h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number">0</div>
+            <div class="stat-label">Libros Leídos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">0</div>
+            <div class="stat-label">Libros Favoritos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">0</div>
+            <div class="stat-label">Reseñas Escritas</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">0</div>
+            <div class="stat-label">Días Consecutivos</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="actions-section">
+        <button class="action-btn primary" (click)="toggleEditMode()">
+          <span class="icon">✏️</span>
+          Editar Perfil
+        </button>
+        <button class="action-btn secondary">
+          <span class="icon">�</span>
+          Notificaciones
+        </button>
+        <button class="action-btn danger" (click)="logout()">
+          <span class="icon">🚪</span>
+          Cerrar Sesión
+        </button>
+      </div>
+
+      <!-- Formulario de edición -->
+      <div class="edit-section" *ngIf="isEditMode">
+        <h2 class="section-title">
+          <span class="icon">✏️</span>
+          Editar Información Personal
+        </h2>
+        <form [formGroup]="editForm" (ngSubmit)="saveProfile()" class="edit-form">
+          <div class="form-group">
+            <label for="editName">Nombre de usuario</label>
+            <input id="editName" type="text" formControlName="name" class="form-input"
+              [class.invalid]="editForm.get('name')?.invalid && editForm.get('name')?.touched">
+            <div class="error-message" *ngIf="editForm.get('name')?.invalid && editForm.get('name')?.touched">
+              <span *ngIf="editForm.get('name')?.errors?.['required']">El nombre es requerido</span>
+              <span *ngIf="editForm.get('name')?.errors?.['minlength']">Mínimo 8 caracteres</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="editEmail">Correo electrónico</label>
+            <input id="editEmail" type="email" formControlName="email" class="form-input"
+              [class.invalid]="editForm.get('email')?.invalid && editForm.get('email')?.touched">
+            <div class="error-message" *ngIf="editForm.get('email')?.invalid && editForm.get('email')?.touched">
+              <span *ngIf="editForm.get('email')?.errors?.['required']">El correo es requerido</span>
+              <span *ngIf="editForm.get('email')?.errors?.['email']">Ingresa un correo válido</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="editPassword">Nueva contraseña</label>
+            <div class="password-input-wrapper">
+              <input id="editPassword" [type]="showEditPassword ? 'text' : 'password'" 
+                     formControlName="password" class="form-input" 
+                     placeholder="Dejar en blanco para mantener actual"
+                     [class.invalid]="editForm.get('password')?.invalid && editForm.get('password')?.touched">
+              <span class="toggle-password" (click)="showEditPassword = !showEditPassword">
+                {{ showEditPassword ? '🙈' : '👀' }}
+              </span>
+            </div>
+            <div class="error-message" *ngIf="editForm.get('password')?.invalid && editForm.get('password')?.touched">
+              <span *ngIf="editForm.get('password')?.errors?.['minlength']">
+                Mínimo 12 caracteres (actual: {{ editForm.get('password')?.errors?.['minlength']?.actualLength || 0 }})
+              </span>
+              <span *ngIf="editForm.get('password')?.errors?.['noUpperCase']">
+                Requiere al menos una mayúscula
+              </span>
+              <span *ngIf="editForm.get('password')?.errors?.['noSpecialChar']">
+                Requiere al menos un carácter especial (!#$%^&amp;*...)
+              </span>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-save" [disabled]="editForm.invalid">
+              <span class="icon">💾</span>
+              Guardar Cambios
+            </button>
+            <button type="button" class="btn-cancel" (click)="cancelEdit()">
+              <span class="icon">❌</span>
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

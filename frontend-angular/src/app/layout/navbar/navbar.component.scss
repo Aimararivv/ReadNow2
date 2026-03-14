@@ -1128,3 +1128,89 @@ input.invalid {
 .strength-text.strong {
   color: #10b981;
 }
+
+/* ================= PERFIL DROPDOWN ================= */
+.profile-dropdown {
+  position: relative;
+}
+
+.profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+  }
+
+  .profile-icon {
+    font-size: 1.2rem;
+  }
+
+  .profile-name {
+    font-size: 0.9rem;
+    white-space: nowrap;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.profile-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  min-width: 180px;
+  z-index: 1000;
+  animation: fadeDown 0.3s ease;
+}
+
+.profile-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #f1f5f9;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: #f8fafc;
+  }
+
+  &.logout:hover {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+
+  .option-icon {
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+  }
+
+  .option-text {
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+}

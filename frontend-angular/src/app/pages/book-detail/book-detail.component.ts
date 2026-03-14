@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BooksService } from '../../core/services/books.service';
 
 @Component({
@@ -17,8 +17,17 @@ export class BookDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private booksService: BooksService
+    private booksService: BooksService,
+    private router: Router
   ) {}
+
+  goToHome() {
+    this.router.navigate(['/home']);
+  }
+
+  goToCatalog() {
+    this.router.navigate(['/catalog']);
+  }
 
   ngOnInit() {
   const id = this.route.snapshot.paramMap.get('id'); // ❌ NO number()

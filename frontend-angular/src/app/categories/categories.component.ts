@@ -10,6 +10,13 @@ import { Router } from '@angular/router';
   styleUrls: ['./categories.component.scss']
 })
 export class CategoriesComponent {
+  
+  constructor(private router: Router) {}
+
+  goToHome() {
+    this.router.navigate(['/home']);
+  }
+
   // Aquí puedes agregar lógica de categorías si es necesario
   categories = [
     { name: 'Ficción', description: 'Novelas y relatos imaginativos', icon: '📚' },
@@ -19,8 +26,6 @@ export class CategoriesComponent {
     { name: 'Autoayuda', description: 'Crecimiento personal y motivación', icon: '💡' },
     { name: 'Infantil', description: 'Libros para niños y jóvenes', icon: '🧸' }
   ];
-
-  constructor(private router: Router) {}
 
   viewBooks(category: string) {
     // Navegar a la página de catálogo con la categoría seleccionada

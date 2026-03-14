@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 
@@ -17,6 +17,7 @@ export class NavbarComponent {
 
   showLogin = false;
   showRegister = false;
+  showProfileDropdown = false;
 
   showLoginPassword = false;
   showRegisterPassword = false;
@@ -24,7 +25,7 @@ export class NavbarComponent {
   form: FormGroup;
   registerForm: FormGroup;
 
-  constructor(private fb: FormBuilder, public auth: AuthService, private messageService: MessageService) {
+  constructor(private fb: FormBuilder, public auth: AuthService, private messageService: MessageService, private router: Router) {
 
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -174,7 +175,7 @@ export class NavbarComponent {
 
         this.messageService.add({
           severity: 'success',
-          summary: '🎉 Bienvenido',
+          summary: '👋 Bienvenido',
           detail: 'Has iniciado sesión correctamente',
           life: 3000
         });
@@ -184,7 +185,7 @@ export class NavbarComponent {
 
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
+          summary: '⚠️ Error',
           detail: 'Correo o contraseña incorrectos',
           life: 3000
         });
@@ -234,7 +235,7 @@ export class NavbarComponent {
 
         this.messageService.add({
           severity: 'success',
-          summary: '😎 Registro exitoso',
+          summary: '🎉 Registro exitoso',
           detail: 'Cuenta creada correctamente',
           life: 3000
         });
@@ -247,7 +248,7 @@ export class NavbarComponent {
 
         this.messageService.add({
           severity: 'error',
-          summary: '🚨 Error',
+          summary: '⚠️ Error',
           detail: 'No se pudo registrar',
           life: 3000
         });
@@ -255,5 +256,35 @@ export class NavbarComponent {
       }
 
     });
+  }
+
+  /* ================= PERFIL DROPDOWN ================= */
+
+  toggleProfileDropdown() {
+    this.showProfileDropdown = !this.showProfileDropdown;
+    this.showLogin = false;
+    this.showRegister = false;
+  }
+
+  goToProfile() {
+    this.showProfileDropdown = false;
+    this.router.navigate(['/perfil']);
+  }
+
+  logout() {
+    this.auth.logout();
+    this.showProfileDropdown = false;
+    this.showLogin = false;
+    this.showRegister = false;
+
+    this.messageService.add({
+      severity: 'info',
+      summary: '👋 Sesión cerrada',
+      detail: 'Has cerrado sesión correctamente',
+      life: 3000
+    });
+
+    // Redirigir a la página principal
+    this.router.navigate(['']);
   }
 }

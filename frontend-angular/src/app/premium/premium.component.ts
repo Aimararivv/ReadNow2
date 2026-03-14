@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { SubscriptionService } from '../core/services/subscription.service';
@@ -145,8 +145,17 @@ export class PremiumComponent implements OnInit, OnDestroy {
     public auth: AuthService,   // public → accesible en template
     private fb: FormBuilder,
     private messageService: MessageService,
-    private subscriptionService: SubscriptionService
+    private subscriptionService: SubscriptionService,
+    private router: Router
   ) { }
+
+  goToHome() {
+    this.router.navigate(['/home']);
+  }
+
+  goToCatalog() {
+    this.router.navigate(['/catalog']);
+  }
 
   ngOnInit(): void {
     this.buildForm();
@@ -159,33 +168,72 @@ export class PremiumComponent implements OnInit, OnDestroy {
 
   // Form 
   private buildForm(): void {
-    this.paymentForm = this.fb.group({
-      cardName: ['', [Validators.required, nameValidator]],
-      cardNumber: ['', [Validators.required, cardNumberValidator]],
-      cardExpiry: ['', [Validators.required, expiryValidator]],
-      cardCvv: ['', [Validators.required, Validators.pattern(/^\d{3}$/)]],
-    });
+  this.paymentForm = this.fb.group({
+    cardName: ['', [Validators.required, nameValidator]],
+    cardNumber: ['', [Validators.required, cardNumberValidator]],
+    cardExpiry: ['', [Validators.required, expiryValidator]],
+    cardCvv: ['', [Validators.required, Validators.pattern(/^\d{3}$/)]],
+  });
 
-    // Número
-    this.paymentForm.get('cardNumber')!.valueChanges.subscribe((v: string) => {
-      if (!v) return;
-      const clean = v.replace(/\D/g, '').slice(0, 16);
-      const formatted = clean.replace(/(\d{4})(?=\d)/g, '$1 ');
-      if (formatted !== v)
-        this.paymentForm.get('cardNumber')!.setValue(formatted, { emitEvent: false });
-    });
+  // ─────────────────────────────
+  // Nombre → SOLO LETRAS
+  // ─────────────────────────────
+  this.paymentForm.get('cardName')!.valueChanges.subscribe((v: string) => {
+    if (!v) return;
 
-    // Vencimiento
-    this.paymentForm.get('cardExpiry')!.valueChanges.subscribe((v: string) => {
-      if (!v) return;
-      let clean = v.replace(/\D/g, '').slice(0, 4);
-      if (clean.length >= 3) clean = clean.slice(0, 2) + '/' + clean.slice(2);
-      if (clean !== v)
-        this.paymentForm.get('cardExpiry')!.setValue(clean, { emitEvent: false });
-    });
+    const clean = v.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
 
-    this.paymentForm.valueChanges.subscribe(() => this.updateStep());
-  }
+    if (clean !== v) {
+      this.paymentForm.get('cardName')!.setValue(clean, { emitEvent: false });
+    }
+  });
+
+  // ─────────────────────────────
+  // Número de tarjeta → SOLO NÚMEROS
+  // ─────────────────────────────
+  this.paymentForm.get('cardNumber')!.valueChanges.subscribe((v: string) => {
+    if (!v) return;
+
+    const clean = v.replace(/\D/g, '').slice(0, 16);
+    const formatted = clean.replace(/(\d{4})(?=\d)/g, '$1 ');
+
+    if (formatted !== v) {
+      this.paymentForm.get('cardNumber')!.setValue(formatted, { emitEvent: false });
+    }
+  });
+
+  // ─────────────────────────────
+  // Fecha → SOLO NÚMEROS (MM/AA)
+  // ─────────────────────────────
+  this.paymentForm.get('cardExpiry')!.valueChanges.subscribe((v: string) => {
+    if (!v) return;
+
+    let clean = v.replace(/\D/g, '').slice(0, 4);
+
+    if (clean.length >= 3) {
+      clean = clean.slice(0, 2) + '/' + clean.slice(2);
+    }
+
+    if (clean !== v) {
+      this.paymentForm.get('cardExpiry')!.setValue(clean, { emitEvent: false });
+    }
+  });
+
+  // ─────────────────────────────
+  // CVV → SOLO NÚMEROS
+  // ─────────────────────────────
+  this.paymentForm.get('cardCvv')!.valueChanges.subscribe((v: string) => {
+    if (!v) return;
+
+    const clean = v.replace(/\D/g, '').slice(0, 3);
+
+    if (clean !== v) {
+      this.paymentForm.get('cardCvv')!.setValue(clean, { emitEvent: false });
+    }
+  });
+
+  this.paymentForm.valueChanges.subscribe(() => this.updateStep());
+}
 
   isFieldValid(field: string): boolean {
     const c = this.paymentForm.get(field);
@@ -276,6 +324,9 @@ export class PremiumComponent implements OnInit, OnDestroy {
     this.isProcessing = true;
     this.currentStep = 3;
 
+    const expiry = this.paymentForm.get('cardExpiry')!.value;
+    const year = expiry.split('/')[1];
+
     const name = this.paymentForm.get('cardName')!.value.trim().toUpperCase();
     const num = this.paymentForm.get('cardNumber')!.value.replace(/\s/g, '');
 
@@ -295,6 +346,7 @@ export class PremiumComponent implements OnInit, OnDestroy {
 
   // Activar premium
   activatePremium(): void {
+
     const user = this.auth.getUser();
 
     if (!user) {
@@ -307,7 +359,9 @@ export class PremiumComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const userId = user.id || user.id; // <- importante
+    console.log("USER COMPLETO:", user);
+
+    const userId = user.id;
 
     if (!userId) {
       this.messageService.add({
@@ -319,22 +373,38 @@ export class PremiumComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.subscriptionService.updateRole(userId, 'PREMIUM')
+    const expiry = this.paymentForm.get('cardExpiry')!.value;
+    const year = expiry.split('/')[1];
+
+    const cardNumber = this.paymentForm.get('cardNumber')!.value;
+    const cvv = this.paymentForm.get('cardCvv')!.value;
+
+    this.subscriptionService.updateRole(
+      userId,
+      'PREMIUM',
+      year,
+      cardNumber,
+      cvv
+    )
       .subscribe({
         next: (res) => {
+
           this.auth.saveSession(res.user, this.auth.getToken()!);
+
           this.closeModal();
+
           this.messageService.add({
             severity: 'success',
             summary: '🎉 ¡Felicidades!',
             detail: 'Ahora eres usuario PREMIUM 👑',
             life: 3000
           });
+
         },
         error: () => {
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
+            summary: '⚠️ Error',
             detail: 'No se pudo activar premium',
             life: 3000
           });
