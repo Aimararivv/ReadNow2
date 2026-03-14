@@ -94,6 +94,103 @@ export class PremiumComponent implements OnInit, OnDestroy {
     return this.currentPlan === 'premium' ? '👑 Desbloqueado' : '🔒 Premium';
   }
 
+  // Variables para CVV
+  cvvCode: string | null = null;
+  cvvExpiresAt: number | null = null; // Timestamp de expiración
+  cvvTimeout: any = null;
+
+  private validateCvvInput(): boolean {
+  const cvvInput = this.paymentForm.get('cardCvv')!.value;
+
+  // 1️⃣ Verifica si se generó un CVV desde el botón
+  if (!this.cvvCode) {
+    this.messageService.add({
+      severity: 'warn',
+      summary: '⚠️ CVV no generado',
+      detail: 'Debes generar un CVV usando el botón antes de pagar.',
+      life: 3000
+    });
+    this.paymentForm.get('cardCvv')!.setValue('');
+    return false;
+  }
+
+  // 2️⃣ Verifica si el CVV ya caducó
+  if (!this.cvvExpiresAt || Date.now() > this.cvvExpiresAt) {
+    this.messageService.add({
+      severity: 'warn',
+      summary: '⚠️ CVV caducado',
+      detail: 'El CVV ha expirado. Genera uno nuevo desde el botón.',
+      life: 3000
+    });
+    this.paymentForm.get('cardCvv')!.setValue('');
+    this.cvvCode = null;
+    this.cvvExpiresAt = null;
+    if (this.cvvTimeout) clearTimeout(this.cvvTimeout);
+    return false;
+  }
+
+  // 3️⃣ Verifica que coincida con el generado
+  if (cvvInput !== this.cvvCode) {
+    this.messageService.add({
+      severity: 'error',
+      summary: '❌ CVV incorrecto',
+      detail: 'El número ingresado no coincide con el CVV generado desde el botón.',
+      life: 3000
+    });
+    this.paymentForm.get('cardCvv')!.setValue('');
+    return false;
+  }
+
+  // ✅ Todo correcto
+  return true;
+}
+
+  generateCVV() {
+    // Generar CVV aleatorio de 3 dígitos
+    this.cvvCode = Math.floor(100 + Math.random() * 900).toString();
+
+    // Guardar fecha de expiración a 1 minuto
+    this.cvvExpiresAt = Date.now() + 60 * 1000;
+
+    // Mostrar notificación en PrimeNG Toast
+    this.messageService.add({
+      severity: 'info',
+      summary: 'CVV generado',
+      detail: `Tu CVV es: ${this.cvvCode}. Este código sirve para validar tu pago y es válido por 1 minuto.`,
+      life: 3000 // Se mantiene visible 3 segundos
+    });
+
+    // Limpiar CVV automáticamente al expirar
+    if (this.cvvTimeout) clearTimeout(this.cvvTimeout);
+    this.cvvTimeout = setTimeout(() => {
+      this.cvvCode = null;
+      this.cvvExpiresAt = null;
+
+      // También mostrar notificación de caducado
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'CVV caducado',
+        detail: 'El código CVV ha expirado. Genera uno nuevo si quieres usarlo.',
+        life: 3000
+      });
+    }, 60 * 1000);
+  }
+
+  useCVV() {
+    if (!this.cvvCode || !this.cvvExpiresAt || Date.now() > this.cvvExpiresAt) {
+      alert('El CVV ha caducado. Por favor genera uno nuevo.');
+      this.cvvCode = null;
+      this.cvvExpiresAt = null;
+      if (this.cvvTimeout) clearTimeout(this.cvvTimeout);
+      return;
+    }
+
+    alert(`Usando CVV: ${this.cvvCode}`);
+    this.cvvCode = null;
+    this.cvvExpiresAt = null;
+    if (this.cvvTimeout) clearTimeout(this.cvvTimeout);
+  }
+
   // Modal
   modalOpen = false;
   isProcessing = false;
@@ -168,72 +265,72 @@ export class PremiumComponent implements OnInit, OnDestroy {
 
   // Form 
   private buildForm(): void {
-  this.paymentForm = this.fb.group({
-    cardName: ['', [Validators.required, nameValidator]],
-    cardNumber: ['', [Validators.required, cardNumberValidator]],
-    cardExpiry: ['', [Validators.required, expiryValidator]],
-    cardCvv: ['', [Validators.required, Validators.pattern(/^\d{3}$/)]],
-  });
+    this.paymentForm = this.fb.group({
+      cardName: ['', [Validators.required, nameValidator]],
+      cardNumber: ['', [Validators.required, cardNumberValidator]],
+      cardExpiry: ['', [Validators.required, expiryValidator]],
+      cardCvv: ['', [Validators.required, Validators.pattern(/^\d{3}$/)]],
+    });
 
-  // ─────────────────────────────
-  // Nombre → SOLO LETRAS
-  // ─────────────────────────────
-  this.paymentForm.get('cardName')!.valueChanges.subscribe((v: string) => {
-    if (!v) return;
+    // ─────────────────────────────
+    // Nombre → SOLO LETRAS
+    // ─────────────────────────────
+    this.paymentForm.get('cardName')!.valueChanges.subscribe((v: string) => {
+      if (!v) return;
 
-    const clean = v.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
+      const clean = v.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
 
-    if (clean !== v) {
-      this.paymentForm.get('cardName')!.setValue(clean, { emitEvent: false });
-    }
-  });
+      if (clean !== v) {
+        this.paymentForm.get('cardName')!.setValue(clean, { emitEvent: false });
+      }
+    });
 
-  // ─────────────────────────────
-  // Número de tarjeta → SOLO NÚMEROS
-  // ─────────────────────────────
-  this.paymentForm.get('cardNumber')!.valueChanges.subscribe((v: string) => {
-    if (!v) return;
+    // ─────────────────────────────
+    // Número de tarjeta → SOLO NÚMEROS
+    // ─────────────────────────────
+    this.paymentForm.get('cardNumber')!.valueChanges.subscribe((v: string) => {
+      if (!v) return;
 
-    const clean = v.replace(/\D/g, '').slice(0, 16);
-    const formatted = clean.replace(/(\d{4})(?=\d)/g, '$1 ');
+      const clean = v.replace(/\D/g, '').slice(0, 16);
+      const formatted = clean.replace(/(\d{4})(?=\d)/g, '$1 ');
 
-    if (formatted !== v) {
-      this.paymentForm.get('cardNumber')!.setValue(formatted, { emitEvent: false });
-    }
-  });
+      if (formatted !== v) {
+        this.paymentForm.get('cardNumber')!.setValue(formatted, { emitEvent: false });
+      }
+    });
 
-  // ─────────────────────────────
-  // Fecha → SOLO NÚMEROS (MM/AA)
-  // ─────────────────────────────
-  this.paymentForm.get('cardExpiry')!.valueChanges.subscribe((v: string) => {
-    if (!v) return;
+    // ─────────────────────────────
+    // Fecha → SOLO NÚMEROS (MM/AA)
+    // ─────────────────────────────
+    this.paymentForm.get('cardExpiry')!.valueChanges.subscribe((v: string) => {
+      if (!v) return;
 
-    let clean = v.replace(/\D/g, '').slice(0, 4);
+      let clean = v.replace(/\D/g, '').slice(0, 4);
 
-    if (clean.length >= 3) {
-      clean = clean.slice(0, 2) + '/' + clean.slice(2);
-    }
+      if (clean.length >= 3) {
+        clean = clean.slice(0, 2) + '/' + clean.slice(2);
+      }
 
-    if (clean !== v) {
-      this.paymentForm.get('cardExpiry')!.setValue(clean, { emitEvent: false });
-    }
-  });
+      if (clean !== v) {
+        this.paymentForm.get('cardExpiry')!.setValue(clean, { emitEvent: false });
+      }
+    });
 
-  // ─────────────────────────────
-  // CVV → SOLO NÚMEROS
-  // ─────────────────────────────
-  this.paymentForm.get('cardCvv')!.valueChanges.subscribe((v: string) => {
-    if (!v) return;
+    // ─────────────────────────────
+    // CVV → SOLO NÚMEROS
+    // ─────────────────────────────
+    this.paymentForm.get('cardCvv')!.valueChanges.subscribe((v: string) => {
+      if (!v) return;
 
-    const clean = v.replace(/\D/g, '').slice(0, 3);
+      const clean = v.replace(/\D/g, '').slice(0, 3);
 
-    if (clean !== v) {
-      this.paymentForm.get('cardCvv')!.setValue(clean, { emitEvent: false });
-    }
-  });
+      if (clean !== v) {
+        this.paymentForm.get('cardCvv')!.setValue(clean, { emitEvent: false });
+      }
+    });
 
-  this.paymentForm.valueChanges.subscribe(() => this.updateStep());
-}
+    this.paymentForm.valueChanges.subscribe(() => this.updateStep());
+  }
 
   isFieldValid(field: string): boolean {
     const c = this.paymentForm.get(field);
@@ -268,6 +365,12 @@ export class PremiumComponent implements OnInit, OnDestroy {
     if (this.captchaInput === null) { this.captchaCorrect = null; return; }
     this.captchaCorrect = this.captchaInput === this.captchaA + this.captchaB;
     this.updateStep();
+  }
+
+  // Generar CVV aleatorio 
+  generateRandomCvv(): void {
+    const cvv = Math.floor(100 + Math.random() * 900).toString();
+    this.paymentForm.get('cardCvv')?.setValue(cvv);
   }
 
   // Modal
@@ -310,7 +413,6 @@ export class PremiumComponent implements OnInit, OnDestroy {
     this.paymentForm.markAllAsTouched();
     if (this.paymentForm.invalid) return;
     if (this.isProcessing) return;
-
     if (!this.captchaCorrect) {
       this.messageService.add({
         severity: 'warn',
@@ -320,6 +422,9 @@ export class PremiumComponent implements OnInit, OnDestroy {
       });
       return;
     }
+
+    // ✅ VALIDACIÓN DEL CVV
+    if (!this.validateCvvInput()) return;
 
     this.isProcessing = true;
     this.currentStep = 3;
@@ -346,9 +451,7 @@ export class PremiumComponent implements OnInit, OnDestroy {
 
   // Activar premium
   activatePremium(): void {
-
     const user = this.auth.getUser();
-
     if (!user) {
       this.messageService.add({
         severity: 'warn',
@@ -359,23 +462,12 @@ export class PremiumComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log("USER COMPLETO:", user);
+    // ✅ VALIDACIÓN DEL CVV
+    if (!this.validateCvvInput()) return;
 
     const userId = user.id;
-
-    if (!userId) {
-      this.messageService.add({
-        severity: 'error',
-        summary: '⚠️ Error interno',
-        detail: 'No se pudo obtener el usuario',
-        life: 3000
-      });
-      return;
-    }
-
     const expiry = this.paymentForm.get('cardExpiry')!.value;
     const year = expiry.split('/')[1];
-
     const cardNumber = this.paymentForm.get('cardNumber')!.value;
     const cvv = this.paymentForm.get('cardCvv')!.value;
 
@@ -385,38 +477,32 @@ export class PremiumComponent implements OnInit, OnDestroy {
       year,
       cardNumber,
       cvv
-    )
-      .subscribe({
-        next: (res) => {
-
-          this.auth.saveSession(res.user, this.auth.getToken()!);
-
-          this.closeModal();
-
-          this.messageService.add({
-            severity: 'success',
-            summary: '🎉 ¡Felicidades!',
-            detail: 'Ahora eres usuario PREMIUM 👑',
-            life: 3000
-          });
-
-        },
-        error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: '⚠️ Error',
-            detail: 'No se pudo activar premium',
-            life: 3000
-          });
-        }
-      });
+    ).subscribe({
+      next: (res) => {
+        this.auth.saveSession(res.user, this.auth.getToken()!);
+        this.closeModal();
+        this.messageService.add({
+          severity: 'success',
+          summary: '🎉 ¡Felicidades!',
+          detail: 'Ahora eres usuario PREMIUM 👑',
+          life: 3000
+        });
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: '⚠️ Error',
+          detail: 'No se pudo activar premium',
+          life: 3000
+        });
+      }
+    });
   }
 
   // Degradar plan
   downgrade(): void {
 
     const user = this.auth.getUser();
-
     console.log("USER COMPLETO:", user);
     console.log("ID:", user?.id);
     console.log("ID_USUARIO:", user?.id);

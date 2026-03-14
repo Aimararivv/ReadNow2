@@ -14,6 +14,9 @@ import { ToastModule } from 'primeng/toast';
   styleUrl: './navbar.component.scss'
 })
 export class NavbarComponent {
+goToNotifications() {
+throw new Error('Method not implemented.');
+}
 
   showLogin = false;
   showRegister = false;
