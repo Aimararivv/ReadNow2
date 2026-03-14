@@ -27,9 +27,10 @@ export const verifyToken = (req, res, next) => {
  * Debe ejecutarse después de verifyToken
  */
 export const requirePremium = (req, res, next) => {
-  // verificamos que req.user exista y tenga rol 'premium'
-  if (!req.user || req.user.role !== 'premium') {
-    return res.status(403).json({ message: "Acceso premium requerido" });
+  if (!req.user || req.user.role !== 'PREMIUM') {
+    return res.status(403).json({
+      message: "Acceso premium requerido"
+    });
   }
   next();
 };

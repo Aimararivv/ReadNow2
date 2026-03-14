@@ -5,7 +5,7 @@ import booksRoutes from './routes/books.routes.js';
 import premiumRoutes from './routes/premium.routes.js';
 import authRoutes from './routes/auth.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
-import usersRoutes from './routes/users.js';
+import usersRoutes from './routes/users.routes.js';
 
 dotenv.config();
 
