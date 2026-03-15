@@ -1,83 +1,127 @@
 <!-- BREADCRUMB -->
-<nav class="breadcrumb" aria-label="breadcrumb">
+<nav class="breadcrumb">
   <span class="current">Inicio</span>
 </nav>
 
-<div class="rn-books-container">
+<main class="rn-main">
 
-  <main class="rn-main">
+  <!-- BUSCADOR -->
+  <section class="rn-search">
 
-    <!-- HERO / CARRUSEL -->
-    <section class="rn-hero">
-      <h2 class="rn-subtitle">Descubre Nuevos Libros</h2>
+  <div class="search-box">
 
-      <div class="rn-carousel">
+    <input
+      type="text"
+      placeholder="🔎 Busca libros, autores o temas..."
+      [(ngModel)]="searchQuery"
+      (keyup.enter)="searchBooks()"
+    />
 
-        <button class="rn-arrow" (click)="prevBooks()">‹</button>
+    <button class="search-btn" (click)="searchBooks()">
+      Buscar
+    </button>
 
-        <div class="rn-books-container">
+    <button
+      *ngIf="searchQuery"
+      class="clear-btn"
+      (click)="clearSearch()"
+      title="Limpiar búsqueda"
+    >
+      ✕
+    </button>
 
-          <div
-            class="rn-book"
-            *ngFor="let b of carouselBooks"
-            [class.locked]="b.premium && !auth.isPremium()"
-            (click)="goToBook(b)"
-          >
+  </div>
 
-            <img [src]="b.thumbnail" alt="Portada del libro">
+</section>
 
-            <div class="lock-overlay" *ngIf="b.premium && !auth.isPremium()">
-              🔒 Premium
-            </div>
 
-            <div class="rn-book-overlay">
-              <h3>{{b.title}}</h3>
-              <p>{{b.author}}</p>
-            </div>
+  <!-- PLAN DEL USUARIO -->
+  <section *ngIf="subscriptionInfo" class="plan-card">
+
+    <div class="plan-header">
+      <h2>
+        {{subscriptionInfo.esPremium ? '👑 Plan Premium' : '📚 Plan Básico'}}
+      </h2>
+
+      <span class="plan-type">
+        {{subscriptionInfo.tipoPlan}}
+      </span>
+    </div>
+
+    <div class="plan-grid">
+
+      <div class="plan-box">
+        <span class="icon">📖</span>
+        <p>Límite diario</p>
+        <strong>{{subscriptionInfo.limiteDiario}}</strong>
+      </div>
+
+      <div class="plan-box">
+        <span class="icon">📚</span>
+        <p>Leídos hoy</p>
+        <strong>{{subscriptionInfo.leidosHoy}}</strong>
+      </div>
+
+      <div class="plan-box">
+        <span class="icon">⏰</span>
+        <p>Restantes</p>
+        <strong>{{subscriptionInfo.restantesHoy}}</strong>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- RESULTADOS -->
+  <section *ngIf="searchResults.length > 0" class="results">
+
+    <div class="results-header">
+      <h2>
+        📚 Resultados ({{searchResults.length}})
+        <span>"{{searchQuery}}"</span>
+      </h2>
+
+      <button class="clear-btn" (click)="clearSearch()">
+  Limpiar
+</button>
+    </div>
+
+    <div class="books-grid">
+
+      <div
+        *ngFor="let book of searchResults"
+        class="book-card"
+        (click)="goToBook(book)"
+      >
+
+        <div class="book-image">
+
+          <img
+            [src]="book.imagen || 'assets/default-book-cover.jpg'"
+            [alt]="book.titulo"
+          />
+
+        </div>
+
+        <div class="book-info">
+          <h3>{{book.titulo}}</h3>
+          <p>{{book.autor}}</p>
+
+          <div class="book-footer">
+            <span>ID {{book.id}}</span>
+
+            <span class="available">
+              Disponible
+            </span>
 
           </div>
-        </div>
-
-        <button class="rn-arrow" (click)="nextBooks()">›</button>
-
-      </div>
-
-    </section>
-
-    <!-- SIDEBAR -->
-    <div class="rn-sidebar">
-
-      <!-- RECOMENDADOS -->
-      <div class="rn-sidebar-section">
-        <h3>Recomendados</h3>
-
-        <div *ngFor="let rec of recommendedBooks" class="rn-recommended-item"
-             [class.locked]="rec.premium && !auth.isPremium()"
-             (click)="goToBook(rec)">
-          <div class="rn-rec-dot"></div>
-          {{rec.title}}
-          <span *ngIf="rec.premium && !auth.isPremium()"> Premium</span>
-          <span *ngIf="rec.premium && !auth.isPremium()">🔒</span>
-        </div>
-
-      </div>
-
-      <!-- POPULARES -->
-      <div class="rn-sidebar-section">
-        <h3>Más Populares</h3>
-
-        <div *ngFor="let pop of popularBooks" class="rn-recommended-item"
-             [class.locked]="pop.premium && !auth.isPremium()"
-             (click)="goToBook(pop)">
-          <div class="rn-rec-dot"></div>
-          {{pop.title}}
-          <span *ngIf="pop.premium && !auth.isPremium()">🔒</span>
         </div>
 
       </div>
 
     </div>
 
-  </main>
+  </section>
 
-</div>
+</main>

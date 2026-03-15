@@ -169,7 +169,7 @@ throw new Error('Method not implemented.');
     this.auth.loginBackend(data).subscribe({
       next: (res: any) => {
 
-        this.auth.saveSession(res.user, res.token);
+        this.auth.saveSession(res, res.token);
 
         this.showLogin = false;
         this.showRegister = false;

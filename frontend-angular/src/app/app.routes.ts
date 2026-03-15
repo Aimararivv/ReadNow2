@@ -39,11 +39,10 @@ export const routes: Routes = [
     component: ProfileComponent
   },
 
-  // Libro (PROTEGIDO)
+  // Libro (ACCESO PARA TODOS)
   {
     path: 'book/:id',
-    component: BookDetailComponent,
-    canActivate: [premiumGuard]
+    component: BookDetailComponent
   },
   {
     path: '**',

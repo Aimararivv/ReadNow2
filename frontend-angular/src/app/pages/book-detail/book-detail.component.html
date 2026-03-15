@@ -12,12 +12,34 @@
 </div>
 
 <div *ngIf="book && !loading">
-  <h1>{{ book.title }}</h1>
-  <p><strong>Autor:</strong> {{ book.author }}</p>
+  <h1>{{ book.titulo || book.title }}</h1>
+  <p><strong>Autor:</strong> {{ book.autor || book.author }}</p>
 
-  <img *ngIf="book.thumbnail" [src]="book.thumbnail" />
+  <img *ngIf="book.imagen || book.thumbnail" [src]="book.imagen || book.thumbnail" [alt]="book.titulo || book.title" style="max-width: 300px; border-radius: 8px; margin: 20px 0;" />
 
-  <p>{{ book.description }}</p>
+  <p>{{ book.descripcion || book.description || getBookDescription() }}</p>
 
-  <span *ngIf="book.premium">🔒 Solo Premium</span>
+  <!-- BOTÓN DE LECTURA -->
+  <div style="margin: 30px 0;">
+    <button *ngIf="canRead && readLink" 
+            (click)="readBook()" 
+            style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 15px 30px; border-radius: 50px; cursor: pointer; font-size: 16px; font-weight: bold; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(40,167,69,0.3);">
+      📖 Leer Libro
+    </button>
+    
+    <button *ngIf="canRead && !readLink" 
+            disabled
+            style="background: #6c757d; color: white; border: none; padding: 15px 30px; border-radius: 50px; cursor: not-allowed; font-size: 16px; font-weight: bold; opacity: 0.7;">
+      ⏳ Verificando acceso...
+    </button>
+    
+    <div *ngIf="!canRead" style="background: #fff3cd; padding: 20px; border-radius: 12px; margin-top: 20px; border-left: 4px solid #ffc107;">
+      <h4 style="color: #856404; margin: 0 0 10px 0; font-size: 18px; font-weight: bold;">
+        📚 Límite de Lectura Alcanzado
+      </h4>
+      <p style="color: #856404; font-size: 14px; margin: 0;">
+        Has alcanzado tu límite diario de lectura. Considera upgrading a Premium para acceso ilimitado.
+      </p>
+    </div>
+  </div>
 </div>
