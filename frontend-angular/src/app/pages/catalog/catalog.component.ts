@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { LoggerService } from '../../core/services/logger.service';
 
 @Component({
   selector: 'app-catalog',
@@ -48,23 +49,42 @@ export class CatalogComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private logger: LoggerService
   ) {}
 
   goToHome() {
+
+    this.logger.log('Usuario navegó a Home desde Catalog');
+
     this.router.navigate(['/home']);
   }
 
   goToCategories() {
+
+    this.logger.log('Usuario navegó a Categorías desde Catalog');
+
     this.router.navigate(['/categories']);
   }
 
   ngOnInit() {
+
+    this.logger.info('CatalogComponent cargado');
+
     this.route.queryParams.subscribe(params => {
+
       const category = params['category'];
+
       if (category) {
+
+        this.logger.info('Categoría recibida desde URL', category);
+
         this.filterByCategory(category);
+
       } else {
+
+        this.logger.log('Mostrando todos los libros');
+
         this.filteredBooks = this.books;
         this.currentCategory = 'todos';
         this.categoryName = 'Todos los Libros';
@@ -73,8 +93,11 @@ export class CatalogComponent implements OnInit {
   }
 
   filterByCategory(category: string) {
+
+    this.logger.info('Filtrando libros por categoría', category);
+
     this.currentCategory = category;
-    
+
     // Mapear nombres de categoría a valores en BD
     const categoryMap: { [key: string]: string } = {
       'ficción': 'ficcion',
@@ -84,10 +107,13 @@ export class CatalogComponent implements OnInit {
       'autoayuda': 'autoayuda',
       'infantil': 'infantil'
     };
-    
+
     const categoryValue = categoryMap[category.toLowerCase()] || category;
+
     this.filteredBooks = this.books.filter(book => book.category === categoryValue);
-    
+
+    this.logger.log('Cantidad de libros encontrados', this.filteredBooks.length);
+
     // Mapear categoría a nombre legible
     const categoryNames: { [key: string]: string } = {
       'ficcion': 'Ficción',
@@ -97,15 +123,21 @@ export class CatalogComponent implements OnInit {
       'autoayuda': 'Autoayuda',
       'infantil': 'Infantil'
     };
-    
+
     this.categoryName = categoryNames[categoryValue] || category;
   }
 
   goToBook(book: any) {
+
+    this.logger.info('Usuario abrió detalle de libro', book);
+
     this.router.navigate(['/book', book.id]);
   }
 
   goBack() {
+
+    this.logger.log('Usuario regresó a categorías');
+
     this.router.navigate(['/categories']);
   }
 }

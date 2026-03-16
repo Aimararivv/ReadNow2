@@ -5,6 +5,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { RouterModule, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { LoggerService } from '../../core/services/logger.service';
 
 @Component({
   selector: 'app-navbar',
@@ -28,7 +29,15 @@ throw new Error('Method not implemented.');
   form: FormGroup;
   registerForm: FormGroup;
 
-  constructor(private fb: FormBuilder, public auth: AuthService, private messageService: MessageService, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    public auth: AuthService,
+    private messageService: MessageService,
+    private router: Router,
+    private logger: LoggerService
+  ) {
+
+    this.logger.info('NavbarComponent inicializado');
 
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -153,21 +162,31 @@ throw new Error('Method not implemented.');
   /* ================= LOGIN ================= */
 
   toggleLogin() {
+
+    this.logger.log('Usuario abrió/cerró el modal de login');
+
     this.showLogin = !this.showLogin;
     this.showRegister = false;
   }
 
   login() {
 
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      this.logger.warn('Intento de login con formulario inválido');
+      return;
+    }
 
     const data = {
       correo: this.form.value.email,
       password: this.form.value.password
     };
 
+    this.logger.info('Intento de login', { email: data.correo });
+
     this.auth.loginBackend(data).subscribe({
       next: (res: any) => {
+
+        this.logger.log('Login exitoso', res.user);
 
         this.auth.saveSession(res.user, res.token);
 
@@ -184,7 +203,9 @@ throw new Error('Method not implemented.');
         });
 
       },
-      error: () => {
+      error: (error) => {
+
+        this.logger.error('Error en login', error);
 
         this.messageService.add({
           severity: 'error',
@@ -197,14 +218,21 @@ throw new Error('Method not implemented.');
     });
 
   }
+
   /* ================= REGISTRO ================= */
 
   showRegisterModal() {
+
+    this.logger.log('Usuario abrió el modal de registro');
+
     this.showRegister = true;
     this.showLogin = false;
   }
 
   closeRegisterModal(event?: MouseEvent) {
+
+    this.logger.log('Modal de registro cerrado');
+
     if (!event ||
       (event.target as HTMLElement).classList.contains('modal-overlay') ||
       (event.target as HTMLElement).classList.contains('close-btn')) {
@@ -215,6 +243,9 @@ throw new Error('Method not implemented.');
   }
 
   switchToLogin() {
+
+    this.logger.log('Usuario cambió de registro a login');
+
     this.showRegister = false;
     this.showLogin = true;
     this.registerForm.reset();
@@ -222,7 +253,10 @@ throw new Error('Method not implemented.');
 
   onRegister() {
 
-    if (this.registerForm.invalid) return;
+    if (this.registerForm.invalid) {
+      this.logger.warn('Intento de registro con formulario inválido');
+      return;
+    }
 
     const data = {
       nombre: this.registerForm.value.username,
@@ -230,9 +264,13 @@ throw new Error('Method not implemented.');
       password: this.registerForm.value.password
     };
 
+    this.logger.info('Intento de registro', { email: data.correo });
+
     this.auth.register(data).subscribe({
 
       next: () => {
+
+        this.logger.log('Registro exitoso');
 
         this.showRegister = false;
 
@@ -247,7 +285,9 @@ throw new Error('Method not implemented.');
 
       },
 
-      error: () => {
+      error: (error) => {
+
+        this.logger.error('Error en registro', error);
 
         this.messageService.add({
           severity: 'error',
@@ -264,17 +304,26 @@ throw new Error('Method not implemented.');
   /* ================= PERFIL DROPDOWN ================= */
 
   toggleProfileDropdown() {
+
+    this.logger.log('Usuario abrió/cerró el dropdown del perfil');
+
     this.showProfileDropdown = !this.showProfileDropdown;
     this.showLogin = false;
     this.showRegister = false;
   }
 
   goToProfile() {
+
+    this.logger.info('Usuario navegó al perfil');
+
     this.showProfileDropdown = false;
     this.router.navigate(['/perfil']);
   }
 
   logout() {
+
+    this.logger.info('Usuario cerró sesión');
+
     this.auth.logout();
     this.showProfileDropdown = false;
     this.showLogin = false;
@@ -287,7 +336,7 @@ throw new Error('Method not implemented.');
       life: 3000
     });
 
-    // Redirigir a la página principal
+  // Redirigir a la página principal
     this.router.navigate(['']);
   }
 }

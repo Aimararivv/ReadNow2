@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { LoggerService } from '../core/services/logger.service';
 
 @Component({
   selector: 'app-categories',
@@ -9,11 +10,21 @@ import { Router } from '@angular/router';
   templateUrl: './categories.component.html',
   styleUrls: ['./categories.component.scss']
 })
-export class CategoriesComponent {
+export class CategoriesComponent implements OnInit {
   
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private logger: LoggerService
+  ) {}
+
+  ngOnInit(): void {
+    this.logger.info('Cargando categorias');
+  }
 
   goToHome() {
+
+    this.logger.log('Usuario navegando a Home');
+
     this.router.navigate(['/home']);
   }
 
@@ -28,9 +39,26 @@ export class CategoriesComponent {
   ];
 
   viewBooks(category: string) {
-    // Navegar a la página de catálogo con la categoría seleccionada
-    this.router.navigate(['/catalog'], { 
-      queryParams: { category: category.toLowerCase() } 
-    });
+
+    if (!category) {
+      this.logger.warn('Intento de abrir una categoría vacía');
+      return;
+    }
+
+    this.logger.info('Categoría seleccionada', category);
+
+    try {
+
+      this.router.navigate(['/catalog'], { 
+        queryParams: { category: category.toLowerCase() } 
+      });
+
+      this.logger.log('Navegación al catálogo realizada');
+
+    } catch (error) {
+
+      this.logger.error('Error al navegar al catálogo', error);
+
+    }
   }
 }
