@@ -70,7 +70,7 @@ export const login = async (req, res) => {
     try {
 
         const result = await pool.query(
-            "SELECT id_usuario, nombre, correo, password, role FROM usuarios WHERE correo = $1",
+            "SELECT id_usuario, nombre, correo, password, role, fecha_creacion FROM usuarios WHERE correo = $1",
             [correo]
         );
 
@@ -159,7 +159,7 @@ export const updateProfile = async (req, res) => {
             UPDATE usuarios 
             SET ${updateFields.join(', ')} 
             WHERE id_usuario = $${paramIndex}
-            RETURNING id_usuario, nombre, correo, role
+            RETURNING id_usuario, nombre, correo, role, fecha_creacion
         `;
 
         const result = await pool.query(updateQuery, updateValues);
