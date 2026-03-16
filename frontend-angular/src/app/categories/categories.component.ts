@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { LoggerService } from '../core/services/logger.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-categories',
@@ -10,55 +9,68 @@ import { LoggerService } from '../core/services/logger.service';
   templateUrl: './categories.component.html',
   styleUrls: ['./categories.component.scss']
 })
-export class CategoriesComponent implements OnInit {
-  
-  constructor(
-    private router: Router,
-    private logger: LoggerService
-  ) {}
+export class CategoriesComponent {
 
-  ngOnInit(): void {
-    this.logger.info('Cargando categorias');
-  }
+categories = [
 
-  goToHome() {
+{
+name:"Children's literature",
+icon:"🧸",
+color:"child"
+},
 
-    this.logger.log('Usuario navegando a Home');
+{
+name:"Fiction",
+icon:"📖",
+color:"fiction"
+},
 
-    this.router.navigate(['/home']);
-  }
+{
+name:"Detective and mystery stories",
+icon:"🕵️",
+color:"mystery"
+},
 
-  // Aquí puedes agregar lógica de categorías si es necesario
-  categories = [
-    { name: 'Ficción', description: 'Novelas y relatos imaginativos', icon: '📚' },
-    { name: 'No Ficción', description: 'Ensayos, biografías y textos informativos', icon: '📖' },
-    { name: 'Ciencia', description: 'Libros de ciencia y tecnología', icon: '🔬' },
-    { name: 'Historia', description: 'Libros de historia y sociedad', icon: '📜' },
-    { name: 'Autoayuda', description: 'Crecimiento personal y motivación', icon: '💡' },
-    { name: 'Infantil', description: 'Libros para niños y jóvenes', icon: '🧸' }
-  ];
+{
+name:"Short stories",
+icon:"✍️",
+color:"stories"
+},
 
-  viewBooks(category: string) {
+{
+name:"History",
+icon:"🏛️",
+color:"history"
+},
 
-    if (!category) {
-      this.logger.warn('Intento de abrir una categoría vacía');
-      return;
-    }
+{
+name:"Composers",
+icon:"🎼",
+color:"music"
+},
 
-    this.logger.info('Categoría seleccionada', category);
+{
+name:"Music appreciation",
+icon:"🎵",
+color:"music2"
+},
 
-    try {
+{
+name:"Philosophy",
+icon:"🧠",
+color:"philosophy"
+}
 
-      this.router.navigate(['/catalog'], { 
-        queryParams: { category: category.toLowerCase() } 
-      });
+];
 
-      this.logger.log('Navegación al catálogo realizada');
+constructor(private router:Router){}
 
-    } catch (error) {
+goToCategory(category:any){
 
-      this.logger.error('Error al navegar al catálogo', error);
+this.router.navigate(['/catalog'],{
+queryParams:{category:category.name}
+});
 
-    }
-  }
+}
+
 }

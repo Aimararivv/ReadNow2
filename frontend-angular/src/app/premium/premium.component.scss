@@ -25,36 +25,7 @@
   display: block;
 }
 
-// Breadcrumb
-.breadcrumb {
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: 16px 24px 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: var(--g400);
-  flex-wrap: wrap;
-  list-style: none;
 
-  a {
-    color: var(--sky-dk);
-    text-decoration: none;
-    font-weight: 500;
-    &:hover { text-decoration: underline; }
-  }
-  span { color: var(--g400); }
-  .current { 
-    color: var(--sky-dp); 
-    font-weight: 600; 
-    background: linear-gradient(135deg, var(--sky-lt), #e8f7ff);
-    padding: 4px 10px;
-    border-radius: 16px;
-    border: 1.5px solid rgba(91, 184, 245, 0.3);
-    position: relative;
-  }
-}
 
 // Main
 main {

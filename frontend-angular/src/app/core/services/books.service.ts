@@ -45,4 +45,14 @@ export class BooksService {
     });
     return this.http.get<any>(`${this.API_URL}/read/${bookId}`, { headers });
   }
+
+  /* OBTENER CATEGORIAS */
+getCategories(){
+  return this.http.get<string[]>(`${this.API_URL}/categories`);
+}
+
+getBooksByCategory(category: string){
+  return this.http.get<any[]>(`${this.API_URL}/search?query=${category}`);
+}
+
 }

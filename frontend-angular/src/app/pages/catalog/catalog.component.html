@@ -1,71 +1,60 @@
-<!-- ══════ BREADCRUMB ══════ -->
-<nav class="breadcrumb" aria-label="breadcrumb">
-  <a (click)="goToHome()" style="cursor: pointer;">Inicio</a>
-  <span>›</span>
-  <a (click)="goToCategories()" style="cursor: pointer;">Categorías</a>
-  <span>›</span>
-  <span class="current">{{ categoryName }}</span>
+<nav class="breadcrumb">
+
+<a routerLink="/home">Inicio</a>
+
+<span>›</span>
+
+<a routerLink="/categories">Categorías</a>
+
+<span>›</span>
+
+<a routerLink="/catalog">Catálogo</a>
+
+<span>›</span>
+
+<span class="current">
+{{category}}
+</span>
+
 </nav>
 
-<div class="catalog-page">
-  
-  <!-- Header -->
-  <div class="catalog-header">
-    <button class="back-btn" (click)="goBack()">
-      ← Regresar a Categorías
-    </button>
-    <h1 class="catalog-title">{{ categoryName }}</h1>
-    <p class="catalog-subtitle">{{ filteredBooks.length }} libros disponibles</p>
-  </div>
+<section class="catalog-container">
 
-  <!-- Books Grid -->
-  <div class="books-grid" *ngIf="filteredBooks.length > 0">
-    <div 
-      class="book-card"
-      *ngFor="let book of filteredBooks"
-      [class.premium-book]="book.premium"
-      [class.ficcion]="book.category === 'ficcion'"
-      [class.no-ficcion]="book.category === 'no-ficcion'"
-      [class.ciencia]="book.category === 'ciencia'"
-      [class.historia]="book.category === 'historia'"
-      [class.autoayuda]="book.category === 'autoayuda'"
-      [class.infantil]="book.category === 'infantil'"
-      (click)="goToBook(book)"
-    >
-      <div class="book-cover">
-        <div class="book-icon">
-          <span *ngIf="book.category === 'ficcion'">📚</span>
-          <span *ngIf="book.category === 'no-ficcion'">📖</span>
-          <span *ngIf="book.category === 'ciencia'">🔬</span>
-          <span *ngIf="book.category === 'historia'">📜</span>
-          <span *ngIf="book.category === 'autoayuda'">💡</span>
-          <span *ngIf="book.category === 'infantil'">🧸</span>
-        </div>
-        <div class="premium-badge" *ngIf="book.premium">
-          🔒 Premium
-        </div>
-      </div>
-      <div class="book-info">
-        <h3 class="book-title">{{ book.title }}</h3>
-        <p class="book-author">{{ book.author }}</p>
-        <div class="book-actions">
-          <button class="view-btn">
-            Ver Detalles
-          </button>
-          <span class="premium-tag" *ngIf="book.premium">Premium</span>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="catalog-box">
 
-  <!-- Empty State -->
-  <div class="empty-state" *ngIf="filteredBooks.length === 0">
-    <div class="empty-icon">📚</div>
-    <h2>No hay libros disponibles</h2>
-    <p>No se encontraron libros en la categoría {{ categoryName }}</p>
-    <button class="back-btn" (click)="goBack()">
-      ← Regresar a Categorías
-    </button>
-  </div>
+<div class="catalog-header">
+
+<h2>Resultados de búsqueda</h2>
+
+<span>{{books.length}} libros encontrados</span>
 
 </div>
+
+<hr>
+
+<div class="books-grid">
+
+<div
+class="book-card"
+*ngFor="let book of books"
+(click)="openBook(book)"
+>
+
+<img 
+[src]="book.imagen || book.thumbnail || 'assets/default-book-cover.jpg'"
+alt="Libro"
+>
+
+<h3>{{book.titulo || book.title}}</h3>
+
+<p class="author">
+{{book.autor || book.author}}
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
