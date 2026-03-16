@@ -1,31 +1,44 @@
-<!-- BREADCRUMB -->
-<nav class="breadcrumb">
-  <span class="current">Inicio</span>
-</nav>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
 
-<main class="rn-main">
+    <h1>
+      Descubre tu próxima
+      <span>lectura</span>
+    </h1>
 
-  <!-- BUSCADOR -->
-  <section class="rn-search">
+    <p>
+      Explora nuestra colección de libros clásicos y modernos.
+      Lee cuando quieras, donde quieras.
+    </p>
+
+  </div>
+</section>
+
+
+<main class="homepage">
+
+
+<!-- BUSCADOR -->
+<section class="rn-search">
 
   <div class="search-box">
 
     <input
       type="text"
-      placeholder="🔎 Busca libros, autores o temas..."
+      placeholder="Buscar libros, autores o temas..."
       [(ngModel)]="searchQuery"
       (keyup.enter)="searchBooks()"
     />
 
     <button class="search-btn" (click)="searchBooks()">
-      Buscar
+      🔎
     </button>
 
     <button
       *ngIf="searchQuery"
       class="clear-btn"
       (click)="clearSearch()"
-      title="Limpiar búsqueda"
     >
       ✕
     </button>
@@ -35,93 +48,152 @@
 </section>
 
 
-  <!-- PLAN DEL USUARIO -->
-  <section *ngIf="subscriptionInfo" class="plan-card">
 
-    <div class="plan-header">
-      <h2>
-        {{subscriptionInfo.esPremium ? '👑 Plan Premium' : '📚 Plan Básico'}}
-      </h2>
+<!-- RESULTADOS -->
 
-      <span class="plan-type">
-        {{subscriptionInfo.tipoPlan}}
-      </span>
-    </div>
+<section *ngIf="searchResults.length > 0" class="results-section">
 
-    <div class="plan-grid">
-
-      <div class="plan-box">
-        <span class="icon">📖</span>
-        <p>Límite diario</p>
-        <strong>{{subscriptionInfo.limiteDiario}}</strong>
-      </div>
-
-      <div class="plan-box">
-        <span class="icon">📚</span>
-        <p>Leídos hoy</p>
-        <strong>{{subscriptionInfo.leidosHoy}}</strong>
-      </div>
-
-      <div class="plan-box">
-        <span class="icon">⏰</span>
-        <p>Restantes</p>
-        <strong>{{subscriptionInfo.restantesHoy}}</strong>
-      </div>
-
-    </div>
-
-  </section>
-
-
-  <!-- RESULTADOS -->
-  <section *ngIf="searchResults.length > 0" class="results">
+  <div class="results-container">
 
     <div class="results-header">
-      <h2>
-        📚 Resultados ({{searchResults.length}})
-        <span>"{{searchQuery}}"</span>
-      </h2>
-
-      <button class="clear-btn" (click)="clearSearch()">
-  Limpiar
-</button>
+      <h2>Resultados de búsqueda</h2>
+      <span>{{searchResults.length}} libros encontrados</span>
     </div>
 
-    <div class="books-grid">
+    <div class="results-grid">
 
       <div
+        class="result-card"
         *ngFor="let book of searchResults"
-        class="book-card"
         (click)="goToBook(book)"
       >
 
-        <div class="book-image">
+        <img
+          [src]="book.imagen || 'assets/default-book-cover.jpg'"
+        />
 
-          <img
-            [src]="book.imagen || 'assets/default-book-cover.jpg'"
-            [alt]="book.titulo"
-          />
-
-        </div>
-
-        <div class="book-info">
+        <div class="result-info">
           <h3>{{book.titulo}}</h3>
           <p>{{book.autor}}</p>
-
-          <div class="book-footer">
-            <span>ID {{book.id}}</span>
-
-            <span class="available">
-              Disponible
-            </span>
-
-          </div>
         </div>
 
       </div>
 
     </div>
 
-  </section>
+  </div>
+
+</section>
+
+
+<!-- PLAN DEL USUARIO -->
+
+<section *ngIf="subscriptionInfo" class="plan-card">
+
+  <div class="plan-header">
+
+    <h2>
+      {{subscriptionInfo.esPremium ? '👑 Plan Premium' : '📚 Plan Básico'}}
+    </h2>
+
+    <span>
+      {{subscriptionInfo.tipoPlan}}
+    </span>
+
+  </div>
+
+  <div class="plan-grid">
+
+    <div class="plan-box">
+      <span>📖</span>
+      <p>Límite diario</p>
+      <strong>{{subscriptionInfo.limiteDiario}}</strong>
+    </div>
+
+    <div class="plan-box">
+      <span>📚</span>
+      <p>Leídos hoy</p>
+      <strong>{{subscriptionInfo.leidosHoy}}</strong>
+    </div>
+
+    <div class="plan-box">
+      <span>⏰</span>
+      <p>Restantes</p>
+      <strong>{{subscriptionInfo.restantesHoy}}</strong>
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- CARRUSEL -->
+
+<section class="carousel-section">
+
+  <h2>🔥 Destacados</h2>
+
+  <div class="carousel">
+
+    <button (click)="prevBooks()" class="carousel-btn">‹</button>
+
+    <div class="carousel-track">
+
+      <div
+        class="carousel-card"
+        *ngFor="let book of carouselBooks"
+        (click)="goToBook(book)"
+      >
+
+        <img
+          [src]="book.imagen || 'assets/default-book-cover.jpg'"
+        />
+
+        <p>{{book.titulo}}</p>
+
+      </div>
+
+    </div>
+
+    <button (click)="nextBooks()" class="carousel-btn">›</button>
+
+  </div>
+
+</section>
+
+
+
+<!-- RECOMENDADOS -->
+
+<section class="books">
+
+  <h2>⭐ Recomendados</h2>
+
+  <div class="books-grid">
+
+    <div
+      class="book-card"
+      *ngFor="let book of recommendedBooks"
+      (click)="goToBook(book)"
+    >
+
+      <img
+        [src]="book.imagen || 'assets/default-book-cover.jpg'"
+      />
+
+      <div class="book-info">
+
+        <h3>{{book.titulo}}</h3>
+        <p>{{book.autor}}</p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
 
 </main>
