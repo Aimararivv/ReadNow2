@@ -1,11 +1,10 @@
 <nav class="rn-navbar">
-  <!-- IZQUIERDA -->
+
   <div class="rn-left">
     <img src="assets/ReadNowLogo1.png" alt="ReadNow Logo">
     <span>Read<b class="now">Now</b></span>
   </div>
 
-  <!-- CENTRO -->
   <div class="rn-center">
     <a routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
       Inicio
@@ -16,6 +15,30 @@
     <a routerLink="/premium" routerLinkActive="active">
       Premium
     </a>
+  </div>
+
+  <!-- BÚSQUEDA -->
+  <div class="rn-search" [class.expanded]="showSearchExpanded">
+    <div class="search-wrapper">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Buscar libros"
+        [(ngModel)]="searchQuery"
+        (focus)="expandSearch()"
+        (blur)="collapseSearch()"
+        (keydown)="onSearchKeydown($event)"
+      />
+      <button
+        class="search-clear-btn"
+        *ngIf="searchQuery"
+        (click)="searchQuery = ''; showSearchExpanded = false"
+      >✕</button>
+      <button class="search-submit-btn" (click)="onSearch()">
+        Buscar
+      </button>
+    </div>
   </div>
 
   <!-- BADGE PREMIUM -->
@@ -133,19 +156,15 @@
           </span>
         </div>
 
-        <!-- REQUISITOS -->
         <!-- BARRA DE FUERZA -->
         <div class="password-strength-wrapper" *ngIf="registerForm.get('password')?.value">
-
           <div class="strength-bar">
             <div class="strength-fill" [style.width.%]="passwordStrengthPercentage" [ngClass]="strengthClass">
             </div>
           </div>
-
           <span class="strength-text" [ngClass]="strengthClass">
             Seguridad: {{ passwordStrengthLabel }}
           </span>
-
         </div>
       </div>
 

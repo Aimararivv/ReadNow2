@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { RouterModule, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -10,7 +10,7 @@ import { LoggerService } from '../../core/services/logger.service';
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, ToastModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule, ToastModule],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss'
 })
@@ -22,6 +22,10 @@ export class NavbarComponent {
 
   showLoginPassword = false;
   showRegisterPassword = false;
+
+  
+  searchQuery = '';
+  showSearchExpanded = false;
 
   form: FormGroup;
   registerForm: FormGroup;
@@ -51,6 +55,39 @@ export class NavbarComponent {
       ]],
       confirmPassword: ['', [Validators.required]]
     }, { validators: this.passwordMatchValidator });
+  }
+
+  /* ================= BÚSQUEDA ================= */
+
+  onSearch() {
+    const query = this.searchQuery.trim();
+    if (!query) return;
+
+    this.logger.info('Usuario realizó una búsqueda', { query });
+    this.router.navigate(['/buscar'], { queryParams: { q: query } });
+    this.showSearchExpanded = false;
+  }
+
+  onSearchKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      this.onSearch();
+    }
+    if (event.key === 'Escape') {
+      this.showSearchExpanded = false;
+      this.searchQuery = '';
+    }
+  }
+
+  expandSearch() {
+    this.showSearchExpanded = true;
+    this.showLogin = false;
+    this.showProfileDropdown = false;
+  }
+
+  collapseSearch() {
+    if (!this.searchQuery.trim()) {
+      this.showSearchExpanded = false;
+    }
   }
 
   /* ================= VALIDADORES ================= */

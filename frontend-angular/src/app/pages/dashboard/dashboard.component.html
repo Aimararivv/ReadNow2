@@ -1,6 +1,5 @@
 <!-- BREADCRUMB -->
 <nav class="breadcrumb" aria-label="breadcrumb">
-  <span class="current">Inicio</span>
 </nav>
 
 <div class="rn-books-container">
@@ -9,6 +8,8 @@
 
     <!-- HERO / CARRUSEL -->
     <section class="rn-hero">
+
+      <h1 class="rn-title">Tu Momento de lectura ha llegado</h1>
       <h2 class="rn-subtitle">Descubre Nuevos Libros</h2>
 
       <div class="rn-carousel">
@@ -16,14 +17,12 @@
         <button class="rn-arrow" (click)="prevBooks()">‹</button>
 
         <div class="rn-books-container">
-
           <div
             class="rn-book"
             *ngFor="let b of carouselBooks"
             [class.locked]="b.premium && !auth.isPremium()"
             (click)="goToBook(b)"
           >
-
             <img [src]="b.thumbnail" alt="Portada del libro">
 
             <div class="lock-overlay" *ngIf="b.premium && !auth.isPremium()">
@@ -34,7 +33,6 @@
               <h3>{{b.title}}</h3>
               <p>{{b.author}}</p>
             </div>
-
           </div>
         </div>
 
@@ -51,12 +49,12 @@
       <div class="rn-sidebar-section">
         <h3>Recomendados</h3>
 
-        <div *ngFor="let rec of recommendedBooks" class="rn-recommended-item"
+        <div *ngFor="let rec of recommendedBooks"
+             class="rn-recommended-item"
              [class.locked]="rec.premium && !auth.isPremium()"
              (click)="goToBook(rec)">
           <div class="rn-rec-dot"></div>
           {{rec.title}}
-          <span *ngIf="rec.premium && !auth.isPremium()"> Premium</span>
           <span *ngIf="rec.premium && !auth.isPremium()">🔒</span>
         </div>
 
@@ -66,7 +64,8 @@
       <div class="rn-sidebar-section">
         <h3>Más Populares</h3>
 
-        <div *ngFor="let pop of popularBooks" class="rn-recommended-item"
+        <div *ngFor="let pop of popularBooks"
+             class="rn-recommended-item"
              [class.locked]="pop.premium && !auth.isPremium()"
              (click)="goToBook(pop)">
           <div class="rn-rec-dot"></div>
