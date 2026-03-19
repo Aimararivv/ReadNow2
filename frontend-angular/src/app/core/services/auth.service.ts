@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 export interface User {
   id: number;
@@ -25,7 +26,7 @@ export interface SubscriptionInfo {
 })
 export class AuthService {
 
-  private apiUrl = 'http://localhost:5036/api/auth';
+  private apiUrl = environment.apiUrl + '/auth';
 
   private user: User | null = null;
   private token: string | null = null;
@@ -120,6 +121,12 @@ export class AuthService {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.token}`
     });
-    return this.http.get<SubscriptionInfo>(`http://localhost:5036/api/books/subscription`, { headers });
+    
+    console.log('🔑 Obteniendo suscripción con token:', this.token ? this.token.substring(0, 20) + '...' : 'null');
+    
+    return this.http.get<SubscriptionInfo>(
+      `${environment.apiUrl}/books/subscription`,
+      { headers }
+    );
   }
 }

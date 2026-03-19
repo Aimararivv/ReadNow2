@@ -1,46 +1,24 @@
 <nav class="breadcrumb">
 
-<a routerLink="/home">Inicio</a>
+  <a routerLink="/home">Inicio</a>
 
 
 </nav>
+<!-- NAV SOLO BUSCADOR -->
+<nav class="navbar">
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-content">
-
-    <h1>
-      Descubre tu próxima
-      <span>lectura</span>
-    </h1>
-
-    <p>
-      Explora nuestra colección de libros clásicos y modernos.
-      Lee cuando quieras, donde quieras.
-    </p>
-
-  </div>
-</section>
-
-
-<main class="homepage">
-
-
-<!-- BUSCADOR -->
-<section class="rn-search">
-
-  <div class="search-box">
+  
+  <!-- BUSCADOR -->
+  <div class="nav-search">
 
     <input
       type="text"
-      placeholder="Buscar libros, autores o temas..."
+      placeholder="Buscar libros..."
       [(ngModel)]="searchQuery"
       (keyup.enter)="searchBooks()"
     />
 
-    <button class="search-btn" (click)="searchBooks()">
-      🔎
-    </button>
+    <button (click)="searchBooks()">🔎</button>
 
     <button
       *ngIf="searchQuery"
@@ -52,37 +30,44 @@
 
   </div>
 
-</section>
+</nav>
+
+
+<main class="homepage">
+
 
 
 
 <!-- RESULTADOS -->
+<section *ngIf="searchResults.length > 0" class="catalog-container">
 
-<section *ngIf="searchResults.length > 0" class="results-section">
+  <div class="catalog-box">
 
-  <div class="results-container">
-
-    <div class="results-header">
+    <div class="catalog-header">
       <h2>Resultados de búsqueda</h2>
-      <span>{{searchResults.length}} libros encontrados</span>
+      <span>{{searchResults.length}} encontrados</span>
     </div>
 
-    <div class="results-grid">
+    <hr>
+
+    <div class="books-grid">
 
       <div
-        class="result-card"
+        class="book-card"
         *ngFor="let book of searchResults"
         (click)="goToBook(book)"
       >
 
-        <img
-          [src]="book.imagen || 'assets/default-book-cover.jpg'"
-        />
+        <img 
+          [src]="book.thumbnail || 'assets/default-book-cover.jpg'"
+          alt="Libro"
+        >
 
-        <div class="result-info">
-          <h3>{{book.titulo}}</h3>
-          <p>{{book.autor}}</p>
-        </div>
+        <h3>{{book.title}}</h3>
+
+        <p class="author">
+          {{book.author}}
+        </p>
 
       </div>
 
@@ -93,114 +78,104 @@
 </section>
 
 
-<!-- PLAN DEL USUARIO -->
-
+<!-- PLAN 
 <section *ngIf="subscriptionInfo" class="plan-card">
 
   <div class="plan-header">
-
     <h2>
-      {{subscriptionInfo.esPremium ? '👑 Plan Premium' : '📚 Plan Básico'}}
+      {{subscriptionInfo.esPremium ? '👑 Premium' : '📚 Básico'}}
     </h2>
-
-    <span>
-      {{subscriptionInfo.tipoPlan}}
-    </span>
-
   </div>
 
   <div class="plan-grid">
 
     <div class="plan-box">
-      <span>📖</span>
-      <p>Límite diario</p>
+      <p>Límite</p>
       <strong>{{subscriptionInfo.limiteDiario}}</strong>
     </div>
 
     <div class="plan-box">
-      <span>📚</span>
-      <p>Leídos hoy</p>
+      <p>Leídos</p>
       <strong>{{subscriptionInfo.leidosHoy}}</strong>
     </div>
 
     <div class="plan-box">
-      <span>⏰</span>
       <p>Restantes</p>
       <strong>{{subscriptionInfo.restantesHoy}}</strong>
     </div>
 
   </div>
 
-</section>
+</section>-->
 
 
+<!-- SECCIÓN PRINCIPAL (2 COLUMNAS) -->
+<section *ngIf="!searchQuery" class="main-cards">
 
-<!-- CARRUSEL -->
+  <!-- IZQUIERDA: CARRUSEL -->
+  <div class="carousel-container">
 
-<section class="carousel-section">
+  <h2>Descubre Nuevos Libros</h2>
 
-  <h2>🔥 Destacados</h2>
+  <p class="subtitle">Explora historias increíbles</p>
 
   <div class="carousel">
 
-    <button (click)="prevBooks()" class="carousel-btn">‹</button>
 
-    <div class="carousel-track">
+      <button (click)="prevBooks()" class="carousel-btn">‹</button>
 
-      <div
-        class="carousel-card"
-        *ngFor="let book of carouselBooks"
+      <div class="carousel-track">
+
+        <div
+          class="carousel-card"
+          *ngFor="let book of carouselBooks"
+          (click)="goToBook(book)"
+        >
+          <img [src]="book.thumbnail || 'assets/default-book-cover.jpg'" />
+        </div>
+
+      </div>
+
+      <button (click)="nextBooks()" class="carousel-btn">›</button>
+
+    </div>
+
+  </div>
+
+
+  <!-- DERECHA -->
+<div class="right-cards">
+
+  <!-- RECOMENDADOS -->
+  <div class="recommended-container">
+
+    <h3>⭐ Recomendados</h3>
+
+    <ul>
+      <li
+        *ngFor="let book of recommendedBooks"
         (click)="goToBook(book)"
       >
-
-        <img
-          [src]="book.imagen || 'assets/default-book-cover.jpg'"
-        />
-
-        <p>{{book.titulo}}</p>
-
-      </div>
-
-    </div>
-
-    <button (click)="nextBooks()" class="carousel-btn">›</button>
+        {{book.title}}
+      </li>
+    </ul>
 
   </div>
 
-</section>
+  <!-- MÁS POPULARES -->
+  <div class="popular-container">
 
+    <h3>🔥 Más populares</h3>
 
-
-<!-- RECOMENDADOS -->
-
-<section class="books">
-
-  <h2>⭐ Recomendados</h2>
-
-  <div class="books-grid">
-
-    <div
-      class="book-card"
-      *ngFor="let book of recommendedBooks"
-      (click)="goToBook(book)"
-    >
-
-      <img
-        [src]="book.imagen || 'assets/default-book-cover.jpg'"
-      />
-
-      <div class="book-info">
-
-        <h3>{{book.titulo}}</h3>
-        <p>{{book.autor}}</p>
-
-      </div>
-
-    </div>
+    <ul>
+      <li
+        *ngFor="let book of popularBooks"
+        (click)="goToBook(book)"
+      >
+        {{book.title}}
+      </li>
+    </ul>
 
   </div>
 
-</section>
-
-
-</main>
+</div>

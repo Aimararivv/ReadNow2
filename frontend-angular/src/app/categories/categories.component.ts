@@ -14,51 +14,57 @@ export class CategoriesComponent {
 categories = [
 
 {
-name:"Children's literature",
-icon:"🧸",
-color:"child"
+  name: "Children's Literature",
+  icon: "🧸",
+  description: "Libros dirigidos a niños, con historias educativas y divertidas."
 },
 
 {
-name:"Fiction",
-icon:"📖",
-color:"fiction"
+  name: "Fiction",
+  icon: "📖",
+  description: "Historias imaginarias llenas de creatividad, aventuras y personajes fascinantes."
 },
 
 {
-name:"Detective and mystery stories",
-icon:"🕵️",
-color:"mystery"
+  name: "Detective and Mystery Stories",
+  icon: "🕵️",
+  color: "mystery",
+  description: "Historias de investigación, suspenso y casos por resolver."
 },
 
 {
-name:"Short stories",
-icon:"✍️",
-color:"stories"
+  name: "Short Stories",
+  icon: "✍️",
+  color: "stories",
+  description: "Relatos breves llenos de creatividad y enseñanza."
 },
 
 {
-name:"History",
-icon:"🏛️",
-color:"history"
+  name: "History",
+  icon: "🏛️",
+  color: "history",
+  description: "Libros sobre acontecimientos históricos y culturas del mundo."
 },
 
 {
-name:"Composers",
-icon:"🎼",
-color:"music"
+  name: "Composers",
+  icon: "🎼",
+  color: "music",
+  description: "Biografías y obras de grandes compositores musicales."
 },
 
 {
-name:"Music appreciation",
-icon:"🎵",
-color:"music2"
+  name: "Music Appreciation",
+  icon: "🎵",
+  color: "music2",
+  description: "Libros para entender y disfrutar la música."
 },
 
 {
-name:"Philosophy",
-icon:"🧠",
-color:"philosophy"
+  name: "Philosophy",
+  icon: "🧠",
+  color: "philosophy",
+  description: "Reflexiones sobre la vida, el pensamiento y el conocimiento."
 }
 
 ];

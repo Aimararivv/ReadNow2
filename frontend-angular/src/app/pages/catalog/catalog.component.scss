@@ -1,22 +1,21 @@
-
+/* CONTENEDOR */
 .catalog-container{
-padding:40px;
+padding:30px;
 display:flex;
 justify-content:center;
 }
 
-/* CAJA BLANCA GRANDE */
-
+/* CAJA */
 .catalog-box{
 background:white;
 border-radius:20px;
-padding:40px;
-width:1200px;
+padding:30px;
+width:100%;
+max-width:1000px; /* 🔥 más compacto */
 box-shadow:0 10px 30px rgba(0,0,0,0.15);
 }
 
 /* HEADER */
-
 .catalog-header{
 display:flex;
 justify-content:space-between;
@@ -25,57 +24,70 @@ margin-bottom:15px;
 }
 
 .catalog-header h2{
-font-size:24px;
+font-size:22px;
 color:#1f2937;
 }
 
 .catalog-header span{
 color:#64748b;
-font-size:14px;
+font-size:13px;
 }
 
 /* GRID */
-
 .books-grid{
-margin-top:30px;
+margin-top:25px;
 display:grid;
-grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
-gap:35px;
+grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+gap:20px;
 }
 
-/* TARJETA LIBRO */
-
+/* CARD */
 .book-card{
+background:#f8fafc;
+border-radius:15px;
+padding:10px;
 cursor:pointer;
-transition:0.2s;
+transition:.3s;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
+text-align:center;
 }
 
+/* HOVER */
 .book-card:hover{
-transform:translateY(-5px);
+transform:translateY(-8px) scale(1.03);
+box-shadow:0 15px 30px rgba(0,0,0,0.25);
 }
 
 /* IMAGEN */
-
 .book-card img{
 width:100%;
-height:250px;
+height:200px;
 object-fit:cover;
-border-radius:6px;
+border-radius:10px;
 margin-bottom:10px;
 }
 
 /* TITULO */
-
 .book-card h3{
-font-size:16px;
+font-size:14px;
 font-weight:600;
 color:#1f2937;
-margin-bottom:4px;
+margin-bottom:5px;
+
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
 }
 
 /* AUTOR */
-
 .author{
-font-size:14px;
+font-size:12px;
 color:#64748b;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+}
+
+.book-card{
+background:linear-gradient(145deg, #e0f2ff, #ffffff);
 }

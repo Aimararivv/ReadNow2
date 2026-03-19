@@ -64,8 +64,10 @@ export class BookDetailComponent implements OnInit {
 
     this.booksService.getBookById(id).subscribe({
       next: (data) => {
+        console.log('✅ Libro obtenido de API pública:', data);
         this.book = data;
         this.loading = false;
+        console.log('📚 Estado del componente:', { book: !!this.book, loading: this.loading, canRead: this.canRead });
         this.checkReadPermission();
       },
       error: (err) => {
@@ -76,62 +78,64 @@ export class BookDetailComponent implements OnInit {
   }
 
   checkReadPermission() {
-    // Todos los libros son accesibles, solo se verifica el límite según el plan
-    this.canRead = true;
-
-    // Usar directamente el enlace de lectura que ya tenemos
-    if (this.canRead && this.book.linkLectura) {
-      console.log('📖 Usando enlace de lectura directo:', this.book.linkLectura);
-      this.readLink = this.book.linkLectura;
-    } else if (this.canRead) {
-      // Intentar obtener del backend como fallback
+    // Verificar si el usuario puede leer
+    if (!this.auth.isLogged()) {
+      this.canRead = false;
+      console.log('❌ Usuario no está logueado');
+      return;
+    }
+    
+    // Si el libro es premium y el usuario no es premium, mostrar mensaje
+    if (this.book.premium && !this.auth.isPremium()) {
+      this.canRead = false;
+      console.log('⭐ Este libro requiere suscripción premium');
+      return;
+    }
+    
+    // Para usuarios FREE, verificar límite de lectura
+    if (!this.auth.isPremium()) {
+      this.checkMonthlyLimit();
+    } else {
+      // Usuarios PREMIUM tienen acceso completo
+      this.canRead = true;
       this.getReadLink();
     }
   }
 
+  checkMonthlyLimit() {
+    // Aquí podrías implementar la lógica para verificar el límite mensual
+    // Por ahora, permitimos la lectura
+    this.canRead = true;
+    this.getReadLink();
+  }
+
   getReadLink() {
     const token = this.auth.getToken();
+    console.log(' Token del auth service:', token ? token.substring(0, 20) + '...' : 'null');
+    console.log(' Token del localStorage:', localStorage.getItem('token') ? localStorage.getItem('token')?.substring(0, 20) + '...' : 'null');
+    
     if (!token) {
-      console.error('No hay token de autenticación');
+      console.error(' No hay token de autenticación');
       return;
     }
 
-    // Extraer el ID real del enlace de lectura (ej: 68283 de https://www.gutenberg.org/ebooks/68283.html.images)
-    let bookId = this.book.id;
+    console.log(' Intentando obtener enlace para libro ID:', this.book.id);
+    console.log(' Libro completo:', this.book);
 
-    if (bookId === 0 && this.book.linkLectura) {
-      // Extraer ID del enlace de lectura
-      const match = this.book.linkLectura.match(/\/ebooks\/(\d+)/);
-      if (match && match[1]) {
-        bookId = parseInt(match[1], 10);
-        console.log('📖 ID extraído del enlace:', bookId);
-      }
-    }
-
-    console.log('📖 Intentando obtener enlace para libro ID:', bookId);
-    console.log('📖 Libro completo:', this.book);
-
-    if (bookId === 0) {
-      console.error('❌ No se pudo determinar el ID del libro');
-      this.canRead = false;
-      return;
-    }
-
-    this.booksService.getReadLink(bookId, token).subscribe({
+    this.booksService.getReadLink(this.book.id).subscribe({
       next: (data: any) => {
-        console.log('✅ Enlace obtenido:', data);
-        this.readLink = data.linkLectura;
+        console.log(' Enlace obtenido:', data);
+        this.readLink = data.readLink;
       },
       error: (err: any) => {
-        console.error('❌ Error obteniendo enlace de lectura:', err);
-
+        console.error(' Error obteniendo enlace de lectura:', err);
+        
         // Manejar diferentes tipos de errores
-        if (err.status === 401) {
-          // 401: No autorizado - límite de lectura alcanzado
+        if (err.status === 403) {
+          // 403: No autorizado - requiere premium
           this.canRead = false;
-          console.log('Acceso denegado: límite de lectura alcanzado');
+          console.log(' Este libro requiere suscripción premium');
         } else {
-          // Otros errores
           console.log('Error al obtener enlace de lectura');
         }
       }
@@ -146,9 +150,33 @@ export class BookDetailComponent implements OnInit {
   }
 
   getBookDescription(): string {
-    const title = this.book.titulo || this.book.title || 'este libro';
-    const author = this.book.autor || this.book.author || 'el autor';
+    const title = this.book.title || 'este libro';
+    const author = this.book.author || 'el autor';
 
     return `Este libro clásico "${title}" de ${author} está disponible a través de Project Gutenberg, una biblioteca digital que ofrece más de 60,000 libros gratuitos. Esta obra es parte del patrimonio cultural literario y puedes disfrutarla en formato digital, perfecta para lectura en cualquier dispositivo. Project Gutenberg trabaja para preservar y compartir obras literarias que han pasado al dominio público, permitiendo que lectores de todo el mundo accedan a grandes clásicos de la literatura universal sin costo alguno.`;
+  }
+
+  getAvailableFormats(): any[] {
+    if (!this.book.downloadLinks) return [];
+    
+    const formats = [];
+    for (const [mime, url] of Object.entries(this.book.downloadLinks)) {
+      if (typeof url === 'string') {
+        let type = 'Desconocido';
+        if (mime.includes('text/plain')) type = 'Texto Plano';
+        else if (mime.includes('html')) type = 'HTML';
+        else if (mime.includes('pdf')) type = 'PDF';
+        else if (mime.includes('epub')) type = 'EPUB';
+        else if (mime.includes('kindle') || mime.includes('mobi')) type = 'Kindle';
+        else if (mime.includes('audio')) type = 'Audio';
+        
+        formats.push({ type, mime, url });
+      }
+    }
+    return formats;
+  }
+
+  hasDownloadLinks(): boolean {
+    return this.book.downloadLinks && Object.keys(this.book.downloadLinks).length > 0;
   }
 }

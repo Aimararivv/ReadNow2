@@ -1,15 +1,10 @@
-import pkg from 'pg';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const { Pool } = pkg;
+import { Pool } from 'pg';
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: "postgresql://neondb_owner:npg_mwtO5E6svlMX@ep-hidden-tooth-ahaj7ffa-pooler.c-3.us-east-1.aws.neon.tech/ReadNow?sslmode=require&channel_binding=require",
   ssl: {
     rejectUnauthorized: false
   }
 });
 
-export default pool;
+export { pool };

@@ -1,55 +1,37 @@
-// src/middlewares/auth.middleware.js
 import jwt from 'jsonwebtoken';
 
-/**
- * Middleware para verificar que el usuario esté autenticado mediante JWT
- */
+// 🔐 VERIFICAR TOKEN
 export const verifyToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
+  const authHeader = req.headers.authorization;
 
   if (!authHeader) {
-    return res.status(401).json({ message: "Token requerido" });
+    return res.status(401).json({
+      message: 'Token requerido'
+    });
   }
 
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret");
-    req.user = decoded; // guardamos la información del usuario en req.user
+    const decoded = jwt.verify(token, 'EstaEsUnaClaveSuperSeguraParaJWT2026BibliotecaAPI');
+
+    req.user = decoded; // guardamos usuario en request
+
     next();
   } catch (error) {
-    return res.status(403).json({ message: "Token inválido" });
+    return res.status(401).json({
+      message: 'Token inválido'
+    });
   }
 };
 
-/**
- * Middleware para verificar que el usuario tenga rol premium
- * Debe ejecutarse después de verifyToken
- */
+// 👑 SOLO PREMIUM
 export const requirePremium = (req, res, next) => {
-  if (!req.user || req.user.role !== 'PREMIUM') {
+  if (req.user?.role !== 'PREMIUM') {
     return res.status(403).json({
-      message: "Acceso premium requerido"
+      message: 'Necesitas ser PREMIUM para acceder'
     });
   }
+
   next();
 };
-export const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
-    if (!token) {
-        return res.status(401).json({
-            message: "Token requerido"
-        });
-    }
-    jwt.verify(token, process.env.JWT_SECRET || "secret", (err, decoded) => {
-        if (err) {
-            return res.status(403).json({
-                message: "Token inválido o expirado"
-            });
-        }
-
-        req.user = decoded;
-        next();
-    });
-} 

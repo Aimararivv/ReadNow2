@@ -3,56 +3,50 @@ import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { tap, catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BooksService {
 
-  private API_URL = 'http://localhost:5036/api/books';
+  private API_URL = environment.apiUrl + '/books';
 
-  constructor(
-    private http: HttpClient,
-    private auth: AuthService
-  ) {}
+  constructor(private http: HttpClient) {}
 
-  /* LISTA DE LIBROS */
   getBooks() {
     return this.http.get<any[]>(this.API_URL);
   }
 
-  /* BUSCAR LIBROS */
   searchBooks(query: string) {
-    const url = `${this.API_URL}/search?query=${query}`;
-    console.log('📚 BooksService.searchBooks - URL:', url);
-    
-    return this.http.get<any[]>(url);
+    return this.http.get<any[]>(`${this.API_URL}/search?query=${query}`);
   }
 
-  /* LIBRO POR ID */
   getBookById(id: string) {
-    const token = this.auth.getToken();
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
-    return this.http.get<any>(`${this.API_URL}/${id}`, { headers });
+    const url = `${this.API_URL}/public/${id}`;
+    console.log('🔍 Obteniendo libro desde:', url);
+    return this.http.get<any>(url);
   }
 
-  /* OBTENER ENLACE DE LECTURA */
-  getReadLink(bookId: number, token: string) {
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
+  getReadLink(bookId: number) {
+    const token = localStorage.getItem('token');
+    let headers = new HttpHeaders();
+    
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+      console.log('🔑 Enviando token en headers:', token.substring(0, 20) + '...');
+    } else {
+      console.log('❌ No hay token en localStorage');
+    }
+    
     return this.http.get<any>(`${this.API_URL}/read/${bookId}`, { headers });
   }
 
-  /* OBTENER CATEGORIAS */
-getCategories(){
-  return this.http.get<string[]>(`${this.API_URL}/categories`);
-}
+  getCategories() {
+    return this.http.get<string[]>(`${this.API_URL}/categories`);
+  }
 
-getBooksByCategory(category: string){
-  return this.http.get<any[]>(`${this.API_URL}/search?query=${category}`);
-}
-
+  getBooksByCategory(category: string) {
+    return this.http.get<any[]>(`${this.API_URL}/category/${category}`);
+  }
 }

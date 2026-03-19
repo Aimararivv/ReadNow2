@@ -37,12 +37,25 @@ export class DashboardComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    console.log('🚀 Dashboard inicializando...');
     this.bookService.getBooks().subscribe(data => {
+      console.log('📚 Libros recibidos:', data);
       this.books = data;
 
+      // Carrusel: Primeros 5 libros
       this.carouselBooks = this.books.slice(0, this.visibleBooks);
-      this.recommendedBooks = data.slice(0, 5);
-      this.popularBooks = data.slice(5, 10);
+      
+      // Recomendados: Libros 6-9 (diferentes al carrusel)
+      this.recommendedBooks = data.slice(5, 9);
+      
+      // Populares: Top 4 libros con más descargas (ordenados por downloadCount)
+      this.popularBooks = [...data]
+        .sort((a, b) => (b.downloadCount || 0) - (a.downloadCount || 0))
+        .slice(0, 4);
+      
+      console.log('🎠 Carousel books:', this.carouselBooks);
+      console.log('⭐ Recommended books:', this.recommendedBooks);
+      console.log('🔥 Popular books (by downloads):', this.popularBooks);
     });
 
     // Cargar información del plan del usuario
@@ -135,6 +148,8 @@ export class DashboardComponent implements OnInit {
   goToBook(book: any) {
     if (!book || !book.id) return;
 
+    console.log('📚 Navegando a libro:', book.id, book.title);
+    
     // Todos los libros son accesibles, el control de límites se maneja en el backend
     this.router.navigate(['/book', book.id]);
   }

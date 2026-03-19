@@ -1,26 +1,35 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
-import booksRoutes from './routes/books.routes.js';
-import premiumRoutes from './routes/premium.routes.js';
-import authRoutes from './routes/auth.routes.js';
-import paymentRoutes from './routes/payment.routes.js';
-import usersRoutes from './routes/users.routes.js';
 
-dotenv.config();
+import authRoutes from './routes/auth.routes.js';
+import bookRoutes from './routes/books.routes.js';
+import favRoutes from './routes/favoritos.routes.js';
+import historialRoutes from './routes/historial.routes.js';
+import subscriptionRoutes from './routes/subscription.routes.js';
+import categoriasRoutes from './routes/categorias.routes.js';
 
 const app = express();
 
-app.use(cors());
+// Configuración de CORS más específica
+const corsOptions = {
+  origin: ['http://localhost:4200', 'http://127.0.0.1:4200'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
-// Rutas
-app.use('/api/books', booksRoutes);
-app.use('/api/premium', premiumRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/payment', paymentRoutes);
-app.use('/api/users', usersRoutes);
+app.use('/api/books', bookRoutes);
+app.use('/api/favoritos', favRoutes);
+app.use('/api/historial', historialRoutes);
+app.use('/api/subscription', subscriptionRoutes);
+app.use('/api/categorias', categoriasRoutes);
 
-app.listen(3000, () => {
-  console.log('✅ ReadNow corriendo en el puerto 3000');
+const PORT = 5036;
+
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });

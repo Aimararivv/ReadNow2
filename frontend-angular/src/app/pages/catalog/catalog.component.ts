@@ -21,22 +21,28 @@ export class CatalogComponent implements OnInit {
     private router:Router
   ){}
 
-  ngOnInit(){
+  ngOnInit() {
+  this.route.queryParams.subscribe(params => {
+    this.category = params['category'];
 
-    this.route.queryParams.subscribe(params=>{
-
-      this.category = params['category'];
-
-      if(this.category){
-        this.booksService.getBooksByCategory(this.category)
-        .subscribe(data=>{
-          this.books=data;
+    if (this.category) {
+      this.booksService.getBooksByCategory(this.category)
+        .subscribe({
+          next: (data) => {
+            this.books = data;
+          },
+          error: (err) => {
+            console.error("Error cargando libros", err);
+          }
         });
-      }
-
-    });
-
-  }
+    } else {
+      // 🔥 SI NO HAY CATEGORIA → CARGA LIBROS
+      this.booksService.getBooks().subscribe(data => {
+        this.books = data;
+      });
+    }
+  });
+}
 
   openBook(book:any){
     this.router.navigate(['/book', book.id]);
