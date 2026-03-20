@@ -6,6 +6,7 @@ import { PremiumComponent } from './premium/premium.component';
 import { BookDetailComponent } from './pages/book-detail/book-detail.component';
 import { CatalogComponent } from './pages/catalog/catalog.component';
 import { ProfileComponent } from './pages/profile/profile.component';
+import { ResultadosComponent } from './Busqueda/Resultados.component';
 
 import { premiumGuard } from './core/services/premium.guard';
 
@@ -38,6 +39,10 @@ export const routes: Routes = [
     path: 'perfil',
     component: ProfileComponent
   },
+  {
+    path: 'buscar',
+    component: ResultadosComponent 
+  },
 
   // Libro (ACCESO PARA TODOS)
   {
@@ -47,5 +52,5 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: ''
-  }
+  },
 ];

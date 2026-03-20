@@ -1,0 +1,55 @@
+<nav class="breadcrumb">
+  <span (click)="goToHome()" class="breadcrumb-link">Inicio</span>
+  <span>›</span>
+  <span class="current">Resultados de búsqueda</span>
+</nav>
+
+<div class="search-loading" *ngIf="loading">
+  <div class="spinner"></div>
+  <p>Buscando libros...</p>
+</div>
+
+<div class="search-error" *ngIf="error && !loading">
+  <p>⚠️ Ocurrió un error al buscar. Intenta de nuevo.</p>
+</div>
+
+<section class="catalog-container" *ngIf="!loading && !error">
+
+  <div class="catalog-box">
+
+    <div class="catalog-header">
+      <h2>Resultados de búsqueda: <span class="query-text">"{{ query }}"</span></h2>
+      <span>{{ books.length }} libros encontrados</span>
+    </div>
+
+    <hr>
+
+    <div class="search-empty" *ngIf="books.length === 0">
+      <p>📚 No se encontraron libros para <strong>"{{ query }}"</strong></p>
+      <p class="search-empty-hint">Intenta con otro término de búsqueda</p>
+    </div>
+
+    <div class="books-grid" *ngIf="books.length > 0">
+
+      <div
+        class="book-card"
+        *ngFor="let book of books"
+        (click)="openBook(book)"
+      >
+
+        <img
+          [src]="book.imagen || book.thumbnail || 'assets/default-book-cover.jpg'"
+          alt="Libro"
+        >
+
+        <h3>{{ book.titulo || book.title }}</h3>
+
+        <p class="author">{{ book.autor || book.author }}</p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
