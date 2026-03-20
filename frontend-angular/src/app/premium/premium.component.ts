@@ -526,6 +526,9 @@ export class PremiumComponent implements OnInit, OnDestroy {
           console.log('🔍 Es premium ahora?', this.auth.isPremium());
           console.log('🔑 Nuevo token guardado:', newToken ? 'Sí' : 'No');
 
+          // Paso 2: Guardar datos de tarjeta
+          this.saveCardData();
+
           this.closeModal();
 
           this.messageService.add({
@@ -631,5 +634,47 @@ export class PremiumComponent implements OnInit, OnDestroy {
     this.logger.warn('Usuario confirmó cancelación de plan premium');
     this.closeCancelModal();
     this.downgrade();
+  }
+
+  // Paso 2: Guardar datos de tarjeta
+  saveCardData(): void {
+    const user = this.auth.getUser();
+    if (!user || !user.id_usuario) {
+      console.error('❌ No hay usuario para guardar datos de tarjeta');
+      return;
+    }
+
+    const cardNumber = this.paymentForm.get('cardNumber')!.value;
+    const expiry = this.paymentForm.get('cardExpiry')!.value;
+    const year = expiry.split('/')[1];
+
+    if (!cardNumber || !year) {
+      console.log('⚠️ No hay datos de tarjeta para guardar');
+      return;
+    }
+
+    console.log('💳 Guardando datos de tarjeta...');
+    
+    this.subscriptionService.saveCardData(user.id_usuario, cardNumber, year)
+      .subscribe({
+        next: (res) => {
+          console.log('✅ Datos de tarjeta guardados:', res);
+          this.messageService.add({
+            severity: 'success',
+            summary: '💳 Tarjeta guardada',
+            detail: 'Datos de tarjeta guardados exitosamente',
+            life: 2000
+          });
+        },
+        error: (error: any) => {
+          console.error('❌ Error guardando datos de tarjeta:', error);
+          this.messageService.add({
+            severity: 'warn',
+            summary: '⚠️ Tarjeta no guardada',
+            detail: 'No se pudieron guardar los datos de tarjeta',
+            life: 3000
+          });
+        }
+      });
   }
 }

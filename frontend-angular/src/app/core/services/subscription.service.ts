@@ -12,28 +12,29 @@ export class SubscriptionService {
 
   constructor(private http: HttpClient) {}
 
-  updateRole(
-    id_usuario: number,
-    role: string,
-    cardYear?: string,
-    cardNumber?: string,
-    cvv?: string
-  ): Observable<any> {
-    
-    // Obtener token del localStorage
+  updateRole(id_usuario: number, role: string, cardYear?: string, cardNumber?: string, cvv?: string): Observable<any> {
     const token = localStorage.getItem('token');
     
-    // Crear headers con autorización
     const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
     });
 
-    return this.http.put(`${this.API}/users/update-role/${id_usuario}`, {
-      role,
-      cardYear,
-      cardNumber,
-      cvv
-    }, { headers });
+    const body = { role, cardYear, cardNumber, cvv };
+
+    return this.http.put(`${this.API}/users/update-role/${id_usuario}`, body, { headers });
+  }
+
+  saveCardData(id_usuario: number, cardNumber: string, cardYear: string): Observable<any> {
+    const token = localStorage.getItem('token');
+    
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    const body = { cardNumber, cardYear };
+
+    return this.http.put(`${this.API}/users/save-card-data/${id_usuario}`, body, { headers });
   }
 }

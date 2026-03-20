@@ -46,7 +46,7 @@ const verifyToken = (req, res, next) => {
     });
     
     req.user = {
-      id_usuario: decoded.id_usuario, // Corregido: usar id_usuario
+      id_usuario: decoded.id_usuario,
       email: decoded.email,
       role: decoded.role
     };
@@ -451,8 +451,9 @@ app.put('/api/users/update-role/:id_usuario', verifyToken, async (req, res) => {
     
     console.log('✅ Usuario encontrado:', userResult.rows[0].nombre);
     
-    // Simplificar: solo actualizar el rol sin encriptación por ahora
-    console.log('🔄 Actualizando rol...');
+    // Actualizar solo el rol por ahora
+    console.log('� Actualizando rol a PREMIUM...');
+    
     const updateQuery = `
       UPDATE usuarios 
       SET role = $1
@@ -462,7 +463,7 @@ app.put('/api/users/update-role/:id_usuario', verifyToken, async (req, res) => {
     
     const result = await pool.query(updateQuery, [role, id_usuario]);
     
-    console.log('✅ Usuario actualizado:', result.rows[0]);
+    console.log('✅ Usuario actualizado a PREMIUM:', result.rows[0]);
     
     // Generar nuevo token con rol actualizado
     const updatedUser = result.rows[0];
@@ -494,6 +495,158 @@ app.put('/api/users/update-role/:id_usuario', verifyToken, async (req, res) => {
       message: 'Error en el servidor', 
       error: error.message 
     });
+  }
+});
+
+// Endpoint para guardar datos de tarjeta (separado del update-role)
+app.put('/api/users/save-card-data/:id_usuario', verifyToken, async (req, res) => {
+  try {
+    const { id_usuario } = req.params;
+    const { cardNumber, cardYear } = req.body;
+    
+    console.log('💳 Guardando datos de tarjeta para usuario:', id_usuario);
+    console.log('📋 Datos recibidos:', { 
+      cardNumber: cardNumber ? '****' + cardNumber.slice(-4) : null, 
+      cardYear: cardYear 
+    });
+    
+    // Verificar que el usuario exista y sea PREMIUM
+    const userResult = await pool.query(
+      'SELECT * FROM usuarios WHERE id_usuario = $1 AND role = $2',
+      [id_usuario, 'PREMIUM']
+    );
+    
+    if (userResult.rows.length === 0) {
+      console.log('❌ Usuario PREMIUM no encontrado:', id_usuario);
+      return res.status(404).json({ message: 'Usuario PREMIUM no encontrado' });
+    }
+    
+    let maskedCardNumber = null;
+    let encryptedCardYear = null;
+    
+    if (cardNumber && cardYear && cardNumber.trim() && cardYear.trim()) {
+      try {
+        // Crear versión enmascarada
+        const lastFourDigits = cardNumber.trim().slice(-4);
+        maskedCardNumber = '**** **** **** ' + lastFourDigits;
+        
+        // Encriptar año
+        encryptedCardYear = crypto.createHash('sha256').update(cardYear.trim()).digest('hex').substring(0, 64);
+        
+        console.log('✅ Datos de tarjeta procesados');
+        console.log('🔢 Número enmascarado:', maskedCardNumber);
+        
+        // Actualizar datos de tarjeta
+        const updateQuery = `
+          UPDATE usuarios 
+          SET card_number_masked = $1,
+              card_year_encrypted = $2
+          WHERE id_usuario = $3
+          RETURNING id_usuario, nombre, correo, card_number_masked
+        `;
+        
+        const result = await pool.query(updateQuery, [
+          maskedCardNumber,
+          encryptedCardYear,
+          id_usuario
+        ]);
+        
+        console.log('✅ Datos de tarjeta guardados:', result.rows[0]);
+        
+        res.json({
+          message: 'Datos de tarjeta guardados exitosamente',
+          user: result.rows[0]
+        });
+        
+      } catch (cryptoError) {
+        console.error('❌ Error en encriptación:', cryptoError);
+        return res.status(400).json({ message: 'Error al procesar datos de tarjeta' });
+      }
+    } else {
+      return res.status(400).json({ message: 'Datos de tarjeta incompletos' });
+    }
+    
+  } catch (error) {
+    console.error('❌ Error guardando datos de tarjeta:', error);
+    res.status(500).json({ 
+      message: 'Error en el servidor', 
+      error: error.message 
+    });
+  }
+});
+
+// Endpoint para verificar y agregar columnas de tarjeta
+app.get('/api/check-card-columns', async (req, res) => {
+  try {
+    console.log('🔍 Verificando columnas de tarjeta...');
+    
+    // Verificar si existen las columnas
+    const checkQuery = `
+      SELECT column_name, data_type 
+      FROM information_schema.columns 
+      WHERE table_name = 'usuarios' 
+      AND column_name IN ('card_number_masked', 'card_year_encrypted', 'card_cvv')
+      ORDER BY column_name
+    `;
+    
+    const result = await pool.query(checkQuery);
+    
+    if (result.rows.length === 0) {
+      console.log('❌ Columnas no encontradas, agregándolas...');
+      
+      // Agregar columnas si no existen
+      await pool.query(`
+        ALTER TABLE usuarios 
+        ADD COLUMN IF NOT EXISTS card_number_masked VARCHAR(255),
+        ADD COLUMN IF NOT EXISTS card_year_encrypted VARCHAR(255),
+        ADD COLUMN IF NOT EXISTS card_cvv VARCHAR(255)
+      `);
+      
+      console.log('✅ Columnas agregadas exitosamente');
+      return res.json({ message: 'Columnas agregadas exitosamente', columnsAdded: true });
+    }
+    
+    console.log('✅ Columnas existentes:', result.rows);
+    res.json({ message: 'Columnas ya existen', columns: result.rows });
+    
+  } catch (error) {
+    console.error('❌ Error verificando columnas:', error);
+    res.status(500).json({ message: 'Error verificando columnas', error: error.message });
+  }
+});
+
+// Endpoint para limpiar usuarios específicos
+app.get('/api/clean-users', async (req, res) => {
+  try {
+    console.log('🧹 Limpiando usuarios específicos...');
+    
+    const usersToDelete = [12, 27, 29, 14, 16, 17, 19, 20, 21, 22];
+    
+    // Primero eliminar lecturas asociadas
+    await pool.query(
+      'DELETE FROM lectura_usuario WHERE id_usuario = ANY($1)',
+      [usersToDelete]
+    );
+    
+    // Luego eliminar usuarios
+    const result = await pool.query(
+      'DELETE FROM usuarios WHERE id_usuario = ANY($1) RETURNING id_usuario, nombre, correo',
+      [usersToDelete]
+    );
+    
+    console.log('✅ Usuarios eliminados:', result.rows.length);
+    result.rows.forEach(user => {
+      console.log(`  - ID: ${user.id_usuario}, Nombre: ${user.nombre}, Email: ${user.correo}`);
+    });
+    
+    res.json({
+      message: 'Usuarios limpiados exitosamente',
+      deletedCount: result.rows.length,
+      deletedUsers: result.rows
+    });
+  } catch (error) {
+    console.error('❌ Error limpiando usuarios:', error);
+    res.status(500).json({ message: 'Error limpiando usuarios', error: error.message });
   }
 });
 
