@@ -3,10 +3,15 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 export interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: 'FREE' | 'PREMIUM' | 'ADMIN';
+  id_usuario: number; // Cambiado de id a id_usuario para coincidir con la BD
+  nombre: string;
+  correo: string;
+  role: string;
+  card_number_masked?: string;
+  card_year_encrypted?: string;
+  card_cvv?: string;
+  fecha_creacion?: string;
+  updated_at?: string;
 }
 
 export interface SubscriptionInfo {
@@ -72,10 +77,15 @@ export class AuthService {
     }
 
     const mappedUser: User = {
-      id: Number(user.id_usuario),
-      name: user.nombre || 'Usuario',
-      email: user.correo || 'usuario@readnow.com',
-      role: user.role ?? 'FREE'
+      id_usuario: Number(user.id_usuario),
+      nombre: user.nombre || 'Usuario',
+      correo: user.correo || 'usuario@readnow.com',
+      role: user.role ?? 'FREE',
+      card_number_masked: user.card_number_masked,
+      card_year_encrypted: user.card_year_encrypted,
+      card_cvv: user.card_cvv,
+      fecha_creacion: user.fecha_creacion,
+      updated_at: user.updated_at
     };
     
     this.user = mappedUser;

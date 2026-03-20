@@ -71,7 +71,7 @@
     <div *ngIf="auth.isLogged()" class="profile-dropdown">
       <button class="profile-btn" (click)="toggleProfileDropdown()">
         <span class="profile-icon">👤</span>
-        <span class="profile-name">{{ auth.getUser()?.name || 'Usuario' }}</span>
+        <span class="profile-name">{{ auth.getUser()?.nombre || 'Usuario' }}</span>
       </button>
       
       <div class="profile-menu" *ngIf="showProfileDropdown">
@@ -110,10 +110,10 @@
           Ingresa un correo válido
         </div>
       </div>
-      <!-- USERNAME -->
+      <!-- NOMBRE -->
       <div class="form-group">
-        <label for="username">Nombre de Usuario</label>
-        <input id="username" type="text" formControlName="username" placeholder="Usuario123"
+        <label for="username">Nombre Completo</label>
+        <input id="username" type="text" formControlName="username" placeholder="Juan Pérez"
           [class.invalid]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
         <div class="error-message"
           *ngIf="registerForm.get('username')?.errors?.['minlength'] && registerForm.get('username')?.touched">
