@@ -34,9 +34,22 @@ const verifyToken = (req, res, next) => {
   
   try {
     const decoded = jwt.verify(token, 'EstaEsUnaClaveSuperSeguraParaJWT2026BibliotecaAPI');
-    req.user = decoded;
+    console.log('Token decodificado:', decoded);
+    
+    // Compatibilidad con ambos formatos de token
+    if (decoded.id_usuario) {
+      req.user = decoded;
+      req.user.id = decoded.id_usuario; // Para compatibilidad
+    } else if (decoded.id) {
+      req.user = decoded;
+      req.user.id_usuario = decoded.id; // Para compatibilidad
+    } else {
+      throw new Error('Token sin información de usuario');
+    }
+    
     next();
   } catch (error) {
+    console.log('Error al verificar token:', error.message);
     return res.status(401).json({ message: 'Token inválido' });
   }
 };
@@ -251,7 +264,7 @@ app.post('/api/auth/login', async (req, res) => {
     const user = result.rows[0];
     
     const token = jwt.sign(
-      { id: user.id_usuario, email: user.correo, role: user.role }, // Usar id_usuario
+      { id_usuario: user.id_usuario, email: user.correo, role: user.role }, // Usar id_usuario
       'EstaEsUnaClaveSuperSeguraParaJWT2026BibliotecaAPI',
       { expiresIn: '2h' }
     );
