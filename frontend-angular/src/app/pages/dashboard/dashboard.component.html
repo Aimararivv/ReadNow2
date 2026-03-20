@@ -1,181 +1,82 @@
-<nav class="breadcrumb">
-
-  <a routerLink="/home">Inicio</a>
-
-
-</nav>
-<!-- NAV SOLO BUSCADOR -->
-<nav class="navbar">
-
-  
-  <!-- BUSCADOR -->
-  <div class="nav-search">
-
-    <input
-      type="text"
-      placeholder="Buscar libros..."
-      [(ngModel)]="searchQuery"
-      (keyup.enter)="searchBooks()"
-    />
-
-    <button (click)="searchBooks()">🔎</button>
-
-    <button
-      *ngIf="searchQuery"
-      class="clear-btn"
-      (click)="clearSearch()"
-    >
-      ✕
-    </button>
-
-  </div>
-
+<!-- BREADCRUMB -->
+<nav class="breadcrumb" aria-label="breadcrumb">
 </nav>
 
+<div class="rn-books-container">
 
-<main class="homepage">
+  <main class="rn-main">
 
+    <!-- HERO / CARRUSEL -->
+    <section class="rn-hero">
 
+      <h1 class="rn-title">Tu Momento de lectura ha llegado</h1>
+      <h2 class="rn-subtitle">Descubre Nuevos Libros</h2>
 
+      <div class="rn-carousel">
 
-<!-- RESULTADOS -->
-<section *ngIf="searchResults.length > 0" class="catalog-container">
+        <button class="rn-arrow" (click)="prevBooks()">‹</button>
 
-  <div class="catalog-box">
+        <div class="rn-books-container">
+          <div
+            class="rn-book"
+            *ngFor="let b of carouselBooks"
+            [class.locked]="b.premium && !auth.isPremium()"
+            (click)="goToBook(b)"
+          >
+            <img [src]="b.thumbnail" alt="Portada del libro">
 
-    <div class="catalog-header">
-      <h2>Resultados de búsqueda</h2>
-      <span>{{searchResults.length}} encontrados</span>
-    </div>
+            <div class="lock-overlay" *ngIf="b.premium && !auth.isPremium()">
+              🔒 Premium
+            </div>
 
-    <hr>
+            <div class="rn-book-overlay">
+              <h3>{{b.title}}</h3>
+              <p>{{b.author}}</p>
+            </div>
+          </div>
+        </div>
 
-    <div class="books-grid">
-
-      <div
-        class="book-card"
-        *ngFor="let book of searchResults"
-        (click)="goToBook(book)"
-      >
-
-        <img 
-          [src]="book.thumbnail || 'assets/default-book-cover.jpg'"
-          alt="Libro"
-        >
-
-        <h3>{{book.title}}</h3>
-
-        <p class="author">
-          {{book.author}}
-        </p>
+        <button class="rn-arrow" (click)="nextBooks()">›</button>
 
       </div>
 
-    </div>
+    </section>
 
-  </div>
+    <!-- SIDEBAR -->
+    <div class="rn-sidebar">
 
-</section>
+      <!-- RECOMENDADOS -->
+      <div class="rn-sidebar-section">
+        <h3>Recomendados</h3>
 
-
-<!-- PLAN 
-<section *ngIf="subscriptionInfo" class="plan-card">
-
-  <div class="plan-header">
-    <h2>
-      {{subscriptionInfo.esPremium ? '👑 Premium' : '📚 Básico'}}
-    </h2>
-  </div>
-
-  <div class="plan-grid">
-
-    <div class="plan-box">
-      <p>Límite</p>
-      <strong>{{subscriptionInfo.limiteDiario}}</strong>
-    </div>
-
-    <div class="plan-box">
-      <p>Leídos</p>
-      <strong>{{subscriptionInfo.leidosHoy}}</strong>
-    </div>
-
-    <div class="plan-box">
-      <p>Restantes</p>
-      <strong>{{subscriptionInfo.restantesHoy}}</strong>
-    </div>
-
-  </div>
-
-</section>-->
-
-
-<!-- SECCIÓN PRINCIPAL (2 COLUMNAS) -->
-<section *ngIf="!searchQuery" class="main-cards">
-
-  <!-- IZQUIERDA: CARRUSEL -->
-  <div class="carousel-container">
-
-  <h2>Descubre Nuevos Libros</h2>
-
-  <p class="subtitle">Explora historias increíbles</p>
-
-  <div class="carousel">
-
-
-      <button (click)="prevBooks()" class="carousel-btn">‹</button>
-
-      <div class="carousel-track">
-
-        <div
-          class="carousel-card"
-          *ngFor="let book of carouselBooks"
-          (click)="goToBook(book)"
-        >
-          <img [src]="book.thumbnail || 'assets/default-book-cover.jpg'" />
+        <div *ngFor="let rec of recommendedBooks"
+             class="rn-recommended-item"
+             [class.locked]="rec.premium && !auth.isPremium()"
+             (click)="goToBook(rec)">
+          <div class="rn-rec-dot"></div>
+          {{rec.title}}
+          <span *ngIf="rec.premium && !auth.isPremium()">🔒</span>
         </div>
 
       </div>
 
-      <button (click)="nextBooks()" class="carousel-btn">›</button>
+      <!-- POPULARES -->
+      <div class="rn-sidebar-section">
+        <h3>Más Populares</h3>
+
+        <div *ngFor="let pop of popularBooks"
+             class="rn-recommended-item"
+             [class.locked]="pop.premium && !auth.isPremium()"
+             (click)="goToBook(pop)">
+          <div class="rn-rec-dot"></div>
+          {{pop.title}}
+          <span *ngIf="pop.premium && !auth.isPremium()">🔒</span>
+        </div>
+
+      </div>
 
     </div>
 
-  </div>
-
-
-  <!-- DERECHA -->
-<div class="right-cards">
-
-  <!-- RECOMENDADOS -->
-  <div class="recommended-container">
-
-    <h3>⭐ Recomendados</h3>
-
-    <ul>
-      <li
-        *ngFor="let book of recommendedBooks"
-        (click)="goToBook(book)"
-      >
-        {{book.title}}
-      </li>
-    </ul>
-
-  </div>
-
-  <!-- MÁS POPULARES -->
-  <div class="popular-container">
-
-    <h3>🔥 Más populares</h3>
-
-    <ul>
-      <li
-        *ngFor="let book of popularBooks"
-        (click)="goToBook(book)"
-      >
-        {{book.title}}
-      </li>
-    </ul>
-
-  </div>
+  </main>
 
 </div>
