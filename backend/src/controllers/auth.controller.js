@@ -159,7 +159,7 @@ export const updateProfile = async (req, res) => {
             UPDATE usuarios 
             SET ${updateFields.join(', ')} 
             WHERE id_usuario = $${paramIndex}
-            RETURNING id_usuario, nombre, correo, role, fecha_creacion
+            RETURNING id_usuario, nombre, correo, role
         `;
 
         const result = await pool.query(updateQuery, updateValues);
@@ -170,9 +170,21 @@ export const updateProfile = async (req, res) => {
             });
         }
 
+        // Obtener la fecha original de creación
+        const dateResult = await pool.query(
+            "SELECT fecha_creacion FROM usuarios WHERE id_usuario = $1",
+            [userId]
+        );
+
+        // Combinar los datos actualizados con la fecha original
+        const updatedUser = {
+            ...result.rows[0],
+            fecha_creacion: dateResult.rows[0].fecha_creacion
+        };
+
         res.json({
             message: "Perfil actualizado exitosamente",
-            user: result.rows[0]
+            user: updatedUser
         });
 
     } catch (error) {
@@ -187,6 +199,36 @@ export const updateProfile = async (req, res) => {
         
         res.status(500).json({
             error: "Error al actualizar perfil"
+        });
+    }
+};
+
+/* ================= DELETE ACCOUNT ================= */
+export const deleteAccount = async (req, res) => {
+    const userId = req.user.id; // ID del usuario desde el token
+
+    try {
+        // Eliminar usuario de la base de datos
+        const result = await pool.query(
+            "DELETE FROM usuarios WHERE id_usuario = $1",
+            [userId]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({
+                message: "Usuario no encontrado"
+            });
+        }
+
+        res.json({
+            message: "Cuenta eliminada exitosamente",
+            success: true
+        });
+
+    } catch (error) {
+        console.error("ERROR DELETE ACCOUNT:", error);
+        res.status(500).json({
+            error: "Error al eliminar la cuenta"
         });
     }
 };
