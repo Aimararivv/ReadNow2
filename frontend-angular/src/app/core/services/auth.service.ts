@@ -60,7 +60,10 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/register`, data);
   }
   updateProfile(data: any) {
-    return this.http.put<any>(`${this.apiUrl}/update`, data);
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.token}`
+    });
+    return this.http.put<any>(`${this.apiUrl}/update`, data, { headers });
   }
   deleteAccount() {
     return this.http.delete<any>(`${this.apiUrl}/delete`);

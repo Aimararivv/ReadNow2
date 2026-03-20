@@ -28,6 +28,22 @@ app.use('/api/historial', historialRoutes);
 app.use('/api/subscription', subscriptionRoutes);
 app.use('/api/categorias', categoriasRoutes);
 
+// Manejador de errores global para respuestas JSON
+app.use((err, req, res, next) => {
+  console.error('Error no manejado:', err);
+  res.status(500).json({
+    message: 'Error interno del servidor',
+    error: process.env.NODE_ENV === 'development' ? err.message : 'Error interno'
+  });
+});
+
+// Manejador para rutas no encontradas
+app.use((req, res) => {
+  res.status(404).json({
+    message: 'Ruta no encontrada'
+  });
+});
+
 const PORT = 5036;
 
 app.listen(PORT, () => {

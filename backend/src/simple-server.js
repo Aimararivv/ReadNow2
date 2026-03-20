@@ -539,6 +539,93 @@ app.get('/api/books/read/:id', verifyToken, async (req, res) => {
   }
 });
 
+// Ruta para actualizar perfil
+app.put('/api/auth/update', verifyToken, async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    const userId = req.user.id;
+
+    console.log('📝 Actualizando perfil del usuario:', userId);
+
+    let updateQuery = 'UPDATE usuarios SET ';
+    const updateValues = [];
+    const updates = [];
+
+    if (name) {
+      updates.push('nombre = $' + (updates.length + 1));
+      updateValues.push(name);
+    }
+
+    if (email) {
+      updates.push('correo = $' + (updates.length + 1));
+      updateValues.push(email);
+    }
+
+    if (password) {
+      updates.push('password = $' + (updates.length + 1));
+      updateValues.push(password);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ message: 'No hay campos para actualizar' });
+    }
+
+    updateQuery += updates.join(', ') + ' WHERE id_usuario = $' + (updates.length + 1) + ' RETURNING *';
+    updateValues.push(userId);
+
+    console.log('🔍 Consulta SQL:', updateQuery);
+    console.log('🔍 Parámetros:', updateValues);
+
+    const result = await pool.query(updateQuery, updateValues);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    const updatedUser = result.rows[0];
+    console.log('✅ Perfil actualizado:', updatedUser);
+
+    res.json({
+      message: 'Perfil actualizado exitosamente',
+      user: {
+        id_usuario: updatedUser.id_usuario,
+        nombre: updatedUser.nombre,
+        correo: updatedUser.correo,
+        role: updatedUser.role
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error al actualizar perfil:', error);
+    res.status(500).json({ message: 'Error al actualizar el perfil' });
+  }
+});
+
+// Ruta para eliminar cuenta
+app.delete('/api/auth/delete', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    console.log('🗑️ Eliminando cuenta del usuario:', userId);
+
+    const result = await pool.query(
+      'DELETE FROM usuarios WHERE id_usuario = $1 RETURNING *',
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    console.log('✅ Cuenta eliminada exitosamente');
+    res.json({ message: 'Cuenta eliminada exitosamente' });
+
+  } catch (error) {
+    console.error('❌ Error al eliminar cuenta:', error);
+    res.status(500).json({ message: 'Error al eliminar la cuenta' });
+  }
+});
+
 app.get('/api/auth/test', (req, res) => {
   res.json({ message: 'Backend funcionando correctamente' });
 });
