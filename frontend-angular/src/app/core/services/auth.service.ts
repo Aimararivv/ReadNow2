@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 export interface User {
   id: number;
   name: string;
   email: string;
   role: 'FREE' | 'PREMIUM' | 'ADMIN';
+  createdAt?: string;
 }
 
 @Injectable({
@@ -19,11 +20,38 @@ export class AuthService {
   private token: string | null = null;
 
   constructor(private http: HttpClient) {
-    const storedUser = localStorage.getItem('user');
-    const storedToken = localStorage.getItem('token');
-    if (storedUser) this.user = JSON.parse(storedUser);
-    if (storedToken) this.token = storedToken;
+    // Limpiar sesión solo al iniciar el sistema (no al refrescar)
+    this.clearSessionOnFirstLoad();
+  }
 
+  // Limpiar sesión solo la primera vez que se carga la aplicación
+  private clearSessionOnFirstLoad(): void {
+    // Verificar si es la primera carga usando sessionStorage
+    const isFirstLoad = !sessionStorage.getItem('appInitialized');
+    
+    if (isFirstLoad) {
+      // Limpiar localStorage y sessionStorage
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      sessionStorage.removeItem('lastActiveTime');
+      
+      // Resetear variables internas
+      this.user = null;
+      this.token = null;
+      
+      // Marcar que la aplicación ya fue inicializada
+      sessionStorage.setItem('appInitialized', 'true');
+      
+      console.log('Sesión limpiada al iniciar el sistema por primera vez');
+    } else {
+      // Si no es la primera carga, recuperar sesión si existe
+      const storedUser = localStorage.getItem('user');
+      const storedToken = localStorage.getItem('token');
+      if (storedUser) this.user = JSON.parse(storedUser);
+      if (storedToken) this.token = storedToken;
+      
+      console.log('Refrescando página - manteniendo sesión existente');
+    }
   }
 
   /* ================= BACKEND ================= */
@@ -34,10 +62,10 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/register`, data);
   }
   updateProfile(data: any) {
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${this.token}`
-    });
-    return this.http.put<any>(`${this.apiUrl}/update`, data, { headers });
+    return this.http.put<any>(`${this.apiUrl}/update`, data);
+  }
+  deleteAccount() {
+    return this.http.delete<any>(`${this.apiUrl}/delete`);
   }
   saveSession(user: any, token: string) {
 
@@ -45,7 +73,8 @@ export class AuthService {
       id: Number(user.id_usuario),
       name: user.nombre,
       email: user.correo || 'usuario@readnow.com',
-      role: user.role ?? 'FREE'
+      role: user.role ?? 'FREE',
+      createdAt: user.fecha_creacion || null
     };
     this.user = mappedUser;
     this.token = token;
@@ -66,6 +95,8 @@ export class AuthService {
     this.token = null;
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    sessionStorage.removeItem('lastActiveTime');
+    sessionStorage.removeItem('appInitialized');
   }
 
   /* ================= GETTERS ================= */

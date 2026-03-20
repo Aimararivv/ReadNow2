@@ -5,6 +5,10 @@ import { Router } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { AutoLogoutService } from '../../core/services/auto-logout.service';
+
+// Forzar la importación para evitar problemas de cache
+type UserInterface = User;
 
 @Component({
   selector: 'app-profile',
@@ -18,28 +22,27 @@ export class ProfileComponent {
   isEditMode = false;
   editForm!: FormGroup;
   showEditPassword = false;
+  showDeleteModal = false;
 
   // Validador personalizado para contraseña fuerte
   strongPasswordValidator(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     
     if (!value) {
-      return null; // La contraseña es opcional
+      return null; // Permitir contraseña vacía (para mantener actual)
     }
-    
-    const hasUpperCase = /[A-Z]/.test(value);
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(value);
-    const hasMinLength = value.length >= 12;
-    
+
     const errors: ValidationErrors = {};
     
-    if (!hasMinLength) {
+    if (value.length < 12) {
       errors['minlength'] = { requiredLength: 12, actualLength: value.length };
     }
-    if (!hasUpperCase) {
+    
+    if (!/[A-Z]/.test(value)) {
       errors['noUpperCase'] = true;
     }
-    if (!hasSpecialChar) {
+    
+    if (!/[!#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value)) {
       errors['noSpecialChar'] = true;
     }
     
@@ -50,7 +53,8 @@ export class ProfileComponent {
     public auth: AuthService, 
     private messageService: MessageService, 
     private router: Router,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private autoLogoutService: AutoLogoutService
   ) {
     this.editForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(8)]],
@@ -76,6 +80,14 @@ export class ProfileComponent {
 
   // Formatear fecha de registro
   getFormattedDate(): string {
+    const user = this.userInfo;
+    if (user && (user as UserInterface).createdAt) {
+      return new Date((user as UserInterface).createdAt as string).toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    }
     return new Date().toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'long',
@@ -97,6 +109,53 @@ export class ProfileComponent {
   // Navegar a inicio
   goToHome() {
     this.router.navigate(['/home']);
+  }
+
+  // Eliminar cuenta
+  deleteAccount() {
+    this.showDeleteModal = true;
+  }
+
+  // Confirmar eliminación de cuenta
+  confirmDeleteAccount() {
+    this.showDeleteModal = false;
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Eliminando cuenta...',
+      detail: 'Por favor espera mientras eliminamos tus datos',
+      life: 3000
+    });
+
+    this.auth.deleteAccount().subscribe({
+      next: (response) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Cuenta eliminada',
+          detail: 'Tu cuenta ha sido eliminada exitosamente. Toda tu información personal, historial de lectura y datos han sido eliminados permanentemente.',
+          life: 5000
+        });
+
+        // Cerrar sesión y redirigir al home
+        setTimeout(() => {
+          this.auth.logout();
+          window.location.href = '/home';
+        }, 2000);
+      },
+      error: (error) => {
+        console.error('Error al eliminar cuenta:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error al eliminar cuenta',
+          detail: 'No se pudo eliminar tu cuenta. Inténtalo nuevamente.',
+          life: 3000
+        });
+      }
+    });
+  }
+
+  // Cancelar eliminación
+  cancelDeleteAccount() {
+    this.showDeleteModal = false;
   }
 
   // Cerrar sesión
@@ -158,20 +217,31 @@ export class ProfileComponent {
     const currentName = this.userInfo?.name || '';
     const currentEmail = this.userInfo?.email || '';
     
+    console.log('Datos actuales del usuario:', {
+      name: currentName,
+      email: currentEmail
+    });
+    
     const updateData: any = {};
     
     // Solo agregar campos que realmente cambiaron
     if (this.editForm.value.name && this.editForm.value.name !== currentName) {
       updateData.name = this.editForm.value.name;
+      console.log('Se detectó cambio de nombre');
     }
     
     if (this.editForm.value.email && this.editForm.value.email !== currentEmail) {
       updateData.email = this.editForm.value.email;
+      console.log('Se detectó cambio de email');
     }
     
     if (this.editForm.value.password) {
       updateData.password = this.editForm.value.password;
+      console.log('Se detectó cambio de password');
     }
+    
+    console.log('UpdateData final:', updateData);
+    console.log('Object.keys(updateData).length:', Object.keys(updateData).length);
 
     // Si no hay cambios reales
     if (Object.keys(updateData).length === 0) {
@@ -198,26 +268,12 @@ export class ProfileComponent {
       next: (response) => {
         // Actualizar datos del usuario en el frontend
         if (response.user) {
-          const updatedUser = {
-            id: Number(response.user.id_usuario),
-            name: response.user.nombre,
-            email: response.user.correo,
-            role: response.user.role || 'FREE'
-          };
-          
-          // Actualizar el usuario en el AuthService
+          // Actualizar el usuario en el AuthService con el nuevo token
           this.auth.saveSession(response.user, this.auth.getToken()!);
-        }
-
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Perfil actualizado',
-          detail: 'Tu información ha sido actualizada correctamente',
-          life: 3000
-        });
-
-        // Si se actualizó correo o contraseña, cerrar sesión automáticamente
-        if (updateData.email || updateData.password) {
+          
+          // Si hay cambios reales, cerrar sesión automáticamente por seguridad
+        if (Object.keys(updateData).length > 0) {
+          console.log('Se detectaron cambios - cerrando sesión');
           this.messageService.add({
             severity: 'info',
             summary: 'Sesión cerrada',
@@ -231,8 +287,10 @@ export class ProfileComponent {
             window.location.href = '/home';
           }, 3500);
         } else {
+          console.log('No se detectaron cambios - manteniendo sesión');
           // Salir del modo edición solo si no se cambió correo/contraseña
           this.isEditMode = false;
+        }
         }
       },
       error: (error) => {

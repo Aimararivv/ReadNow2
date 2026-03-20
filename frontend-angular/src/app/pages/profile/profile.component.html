@@ -99,9 +99,9 @@
           <span class="icon">✏️</span>
           Editar Perfil
         </button>
-        <button class="action-btn secondary">
-          <span class="icon">�</span>
-          Notificaciones
+        <button class="action-btn danger" (click)="deleteAccount()">
+          <span class="icon">🗑️</span>
+          Eliminar Cuenta
         </button>
         <button class="action-btn danger" (click)="logout()">
           <span class="icon">🚪</span>
@@ -162,12 +162,52 @@
               <span class="icon">💾</span>
               Guardar Cambios
             </button>
-            <button type="button" class="btn-cancel" (click)="cancelEdit()">
+            <button type="button" class="btn-cancel-form" (click)="cancelEdit()">
               <span class="icon">❌</span>
               Cancelar
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de eliminación de cuenta -->
+  <div *ngIf="showDeleteModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 9999;" (click)="cancelDeleteAccount()">
+    <div style="background: white; border-radius: 20px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3); animation: fadeUp 0.3s ease-out;" (click)="$event.stopPropagation()">
+      <div style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; padding: 20px 24px; border-radius: 20px 20px 0 0; display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0; font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px;">⚠️ Eliminar Cuenta</h3>
+        <button style="background: none; border: none; font-size: 24px; color: white; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s ease;" (click)="cancelDeleteAccount()">×</button>
+      </div>
+      
+      <div style="padding: 24px; text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 16px; animation: pulse 2s infinite;">🗑️</div>
+        <p style="font-size: 15px; font-weight: 600; color: #475569; margin: 0 0 12px 0;">
+          ¿Estás seguro de que quieres eliminar tu cuenta?
+        </p>
+        <p style="font-size: 14px; color: #64748b; margin: 0 0 16px 0; line-height: 1.5;">
+          Esta acción es <strong>irreversible</strong> y eliminará permanentemente:
+        </p>
+        <ul style="text-align: left; margin: 16px 0; padding: 0; list-style: none;">
+          <li style="padding: 8px 0; font-size: 14px; color: #475569; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 8px;">📝 Tu información personal</li>
+          <li style="padding: 8px 0; font-size: 14px; color: #475569; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 8px;">📚 Tu historial de lectura</li>
+          <li style="padding: 8px 0; font-size: 14px; color: #475569; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 8px;">⭐ Tus libros favoritos</li>
+          <li style="padding: 8px 0; font-size: 14px; color: #475569; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 8px;">📊 Tus estadísticas y progreso</li>
+          <li style="padding: 8px 0; font-size: 14px; color: #475569; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 8px;">📝 Tus reseñas y calificaciones</li>
+          <li style="padding: 8px 0; font-size: 14px; color: #475569; display: flex; align-items: center; gap: 8px;">💳 Datos de pago (encriptados)</li>
+        </ul>
+        <p style="font-size: 13px; color: #64748b; margin: 16px 0 0 0; font-weight: 600; background: #fef2f2; padding: 12px 16px; border-radius: 8px; border: 1px solid #fecaca;">
+          <strong>Una vez eliminada, no podrás recuperar esta información.</strong>
+        </p>
+      </div>
+      
+      <div style="display: flex; gap: 10px; padding: 20px 24px; border-top: 1px solid #e2e8f0;">
+        <button style="flex: 1; padding: 12px 24px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.25s ease; background: #e2e8f0; color: #475569;" (click)="cancelDeleteAccount()">
+          Cancelar
+        </button>
+        <button style="flex: 1; padding: 12px 24px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.25s ease; background: #ef4444; color: white;" (click)="confirmDeleteAccount()">
+          Sí, Eliminar Mi Cuenta
+        </button>
       </div>
     </div>
   </div>
