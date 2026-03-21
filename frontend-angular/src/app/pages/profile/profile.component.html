@@ -16,7 +16,7 @@
     <div class="profile-header">
       <div class="profile-avatar">
         <div class="avatar-circle">
-          {{ getInitials(userInfo?.name) }}
+          {{ getInitials(userInfo?.nombre) }}
         </div>
         <div class="status-indicator" [class.premium]="isPremium" [class.admin]="isAdmin" [class.basic]="!isPremium && !isAdmin">
           {{ isPremium ? '👑' : isAdmin ? '🛡️' : '📖' }}
@@ -24,8 +24,8 @@
       </div>
       
       <div class="profile-info">
-        <h1 class="profile-name">{{ userInfo?.name || 'Usuario' }}</h1>
-        <p class="profile-email">{{ userInfo?.email || 'usuario&#64;readnow.com' }}</p>
+        <h1 class="profile-name">{{ userInfo?.nombre || 'Usuario' }}</h1>
+        <p class="profile-email">{{ userInfo?.correo || 'usuario&#64;readnow.com' }}</p>
         <div class="profile-badges">
           <span class="badge" [class.premium-badge]="isPremium" [class.admin-badge]="isAdmin">
             {{ isPremium ? 'PREMIUM' : isAdmin ? 'ADMIN' : 'BÁSICO' }}
@@ -46,11 +46,11 @@
         <div class="info-grid">
           <div class="info-item">
             <label>Nombre de usuario</label>
-            <p>{{ userInfo?.name || 'No disponible' }}</p>
+            <p>{{ userInfo?.nombre || 'No disponible' }}</p>
           </div>
           <div class="info-item">
             <label>Correo electrónico</label>
-            <p>{{ userInfo?.email || 'usuario&#64;readnow.com' }}</p>
+            <p>{{ userInfo?.correo || 'usuario&#64;readnow.com' }}</p>
           </div>
           <div class="info-item">
             <label>Fecha de registro</label>
@@ -118,20 +118,20 @@
         <form [formGroup]="editForm" (ngSubmit)="saveProfile()" class="edit-form">
           <div class="form-group">
             <label for="editName">Nombre de usuario</label>
-            <input id="editName" type="text" formControlName="name" class="form-input"
-              [class.invalid]="editForm.get('name')?.invalid && editForm.get('name')?.touched">
-            <div class="error-message" *ngIf="editForm.get('name')?.invalid && editForm.get('name')?.touched">
-              <span *ngIf="editForm.get('name')?.errors?.['required']">El nombre es requerido</span>
-              <span *ngIf="editForm.get('name')?.errors?.['minlength']">Mínimo 8 caracteres</span>
+            <input id="editName" type="text" formControlName="nombre" class="form-input"
+              [class.invalid]="editForm.get('nombre')?.invalid && editForm.get('nombre')?.touched">
+            <div class="error-message" *ngIf="editForm.get('nombre')?.invalid && editForm.get('nombre')?.touched">
+              <span *ngIf="editForm.get('nombre')?.errors?.['required']">El nombre es requerido</span>
+              <span *ngIf="editForm.get('nombre')?.errors?.['minlength']">Mínimo 8 caracteres</span>
             </div>
           </div>
           <div class="form-group">
             <label for="editEmail">Correo electrónico</label>
-            <input id="editEmail" type="email" formControlName="email" class="form-input"
-              [class.invalid]="editForm.get('email')?.invalid && editForm.get('email')?.touched">
-            <div class="error-message" *ngIf="editForm.get('email')?.invalid && editForm.get('email')?.touched">
-              <span *ngIf="editForm.get('email')?.errors?.['required']">El correo es requerido</span>
-              <span *ngIf="editForm.get('email')?.errors?.['email']">Ingresa un correo válido</span>
+            <input id="editEmail" type="email" formControlName="correo" class="form-input"
+              [class.invalid]="editForm.get('correo')?.invalid && editForm.get('correo')?.touched">
+            <div class="error-message" *ngIf="editForm.get('correo')?.invalid && editForm.get('correo')?.touched">
+              <span *ngIf="editForm.get('correo')?.errors?.['required']">El correo es requerido</span>
+              <span *ngIf="editForm.get('correo')?.errors?.['email']">Ingresa un correo válido</span>
             </div>
           </div>
           <div class="form-group">

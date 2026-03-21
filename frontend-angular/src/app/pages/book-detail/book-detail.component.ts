@@ -41,6 +41,11 @@ export class BookDetailComponent implements OnInit {
     this.router.navigate(['/catalog']);
   }
 
+  goToPremium() {
+    this.logger.log('Usuario navegó a Premium desde BookDetail');
+    this.router.navigate(['/premium']);
+  }
+
   ngOnInit() {
 
     this.logger.info('BookDetailComponent cargado');

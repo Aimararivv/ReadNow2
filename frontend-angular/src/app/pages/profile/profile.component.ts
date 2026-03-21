@@ -32,8 +32,8 @@ export class ProfileComponent {
     this.logger.info('ProfileComponent cargado');
 
     this.editForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(8)]],
-      email: ['', [Validators.required, Validators.email]],
+      nombre: ['', [Validators.required, Validators.minLength(8)]],
+      correo: ['', [Validators.required, Validators.email]],
       password: ['', this.strongPasswordValidator]
     });
   }
@@ -215,8 +215,8 @@ export class ProfileComponent {
 
       // Cargar datos actuales en el formulario
       this.editForm.patchValue({
-        name: this.userInfo?.name || '',
-        email: this.userInfo?.email || '',
+        nombre: this.userInfo?.nombre || '',
+        correo: this.userInfo?.correo || '',
         password: ''
       });
 
@@ -260,25 +260,18 @@ export class ProfileComponent {
     }
 
     // Detectar cambios reales comparando con datos actuales
-    const currentName = this.userInfo?.name || '';
-    const currentEmail = this.userInfo?.email || '';
-    
-    console.log('Datos actuales del usuario:', {
-      name: currentName,
-      email: currentEmail
-    });
-    
+    const currentName = this.userInfo?.nombre || '';
+    const currentEmail = this.userInfo?.correo || '';
+
     const updateData: any = {};
 
     // Solo agregar campos que realmente cambiaron
-    if (this.editForm.value.name && this.editForm.value.name !== currentName) {
-      updateData.name = this.editForm.value.name;
-      console.log('Se detectó cambio de nombre');
+    if (this.editForm.value.nombre && this.editForm.value.nombre !== currentName) {
+      updateData.nombre = this.editForm.value.nombre;
     }
 
-    if (this.editForm.value.email && this.editForm.value.email !== currentEmail) {
-      updateData.email = this.editForm.value.email;
-      console.log('Se detectó cambio de email');
+    if (this.editForm.value.correo && this.editForm.value.correo !== currentEmail) {
+      updateData.correo = this.editForm.value.correo;
     }
 
     if (this.editForm.value.password) {

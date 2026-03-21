@@ -106,7 +106,7 @@
         <p class="warning-message">
           Has alcanzado tu límite mensual de lectura. Considera upgrading a Premium para acceso ilimitado.
         </p>
-        <button class="btn btn-premium">
+        <button class="btn btn-premium" (click)="goToPremium()">
           <span class="btn-icon">⭐</span>
           <span class="btn-text">Upgrade a Premium</span>
         </button>
@@ -121,7 +121,7 @@
         <p class="warning-message">
           Este libro requiere una suscripción Premium para acceder a su contenido.
         </p>
-        <button class="btn btn-premium">
+        <button class="btn btn-premium" (click)="goToPremium()">
           <span class="btn-icon">⭐</span>
           <span class="btn-text">Obtener Premium</span>
         </button>
