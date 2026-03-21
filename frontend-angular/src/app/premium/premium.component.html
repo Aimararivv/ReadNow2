@@ -215,12 +215,9 @@
             <div class="field cvv-field">
               <div class="field cvv-field">
                 <label>CVV</label>
-                <input type="text" placeholder="Ingresa el CVV" maxlength="3" formControlName="cardCvv" (focus)="cardFlipped = true"
+                <input type="password" placeholder="Ingresa el CVV" maxlength="3" formControlName="cardCvv" (focus)="cardFlipped = true"
                   (blur)="cardFlipped = false" [class.ok]="isFieldValid('cardCvv')"
                   [class.bad]="isFieldInvalid('cardCvv')" />
-                <button type="button" class="cvv-btn" (click)="generateCVV()">
-                  🔒 Generar CVV
-                </button>
               </div>
             </div>
           </div>
