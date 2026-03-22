@@ -71,6 +71,10 @@ categories = [
 
 constructor(private router:Router){}
 
+  goToHome() {
+    this.router.navigate(['/home']);
+  }
+
 goToCategory(category:any){
 
 this.router.navigate(['/catalog'],{

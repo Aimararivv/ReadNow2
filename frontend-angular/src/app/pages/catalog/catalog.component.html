@@ -1,21 +1,9 @@
-<nav class="breadcrumb">
-
-<a routerLink="/home">Inicio</a>
-
-<span>›</span>
-
-<a routerLink="/categories">Categorías</a>
-
-<span>›</span>
-
-<a routerLink="/catalog">Catálogo</a>
-
-<span>›</span>
-
-<span class="current">
-{{category}}
-</span>
-
+<nav class="breadcrumb" aria-label="breadcrumb">
+  <a (click)="goToHome()" style="cursor: pointer;">Inicio</a>
+  <span>›</span>
+  <a (click)="goToCategories()" style="cursor: pointer;">Categorías</a>
+  <span>›</span>
+  <span class="current">Catálogo</span>
 </nav>
 
 <section class="catalog-container">

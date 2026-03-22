@@ -2,9 +2,7 @@
 <nav class="breadcrumb" aria-label="breadcrumb">
   <a (click)="goToHome()" style="cursor: pointer;">Inicio</a>
   <span>›</span>
-  <a (click)="goToCatalog()" style="cursor: pointer;">Catálogo</a>
-  <span>›</span>
-  <span class="current">Suscripciones</span>
+  <span class="current">Premium</span>
 </nav>
 
 <!-- Main -->
@@ -57,8 +55,9 @@
       <ul class="plan-feats">
         <li><span class="fi">✅</span> Catálogo general de libros</li>
         <li><span class="fi">✅</span> Vista previa de capítulos</li>
-        <li><span class="fi">✅</span> Hasta 3 libros al mes</li>
+        <li><span class="fi">✅</span> Un libro por mes</li>
         <li><span class="fi">✅</span> Biblioteca personal básica</li>
+        <li><span class="fi">✅</span> Historial de lectura</li>
         <li><span class="fi">🔒</span><span class="locked">Libros premium bloqueados</span></li>
         <li><span class="fi">🔒</span><span class="locked">Sin descarga offline</span></li>
         <li><span class="fi">🔒</span><span class="locked">Sin recomendaciones con IA</span></li>
@@ -82,11 +81,9 @@
       <div class="plan-sub">Para lectores apasionados</div>
       <ul class="plan-feats">
         <li><span class="fi">✅</span> Todo lo del plan Básico</li>
-        <li><span class="fi">✅</span> <strong>Libros premium ilimitados</strong></li>
+        <li><span class="fi">✅</span> Libros premium ilimitados</li>
         <li><span class="fi">✅</span> Descarga y lectura offline</li>
         <li><span class="fi">✅</span> Recomendaciones con IA</li>
-        <li><span class="fi">✅</span> Sin anuncios</li>
-        <li><span class="fi">✅</span> Historial de lectura completo</li>
         <li><span class="fi">✅</span> Acceso anticipado a novedades</li>
       </ul>
       <button class="plan-btn" [class.btn-premium]="currentPlan !== 'premium'"
@@ -296,7 +293,6 @@
         <li>🔒 Acceso a libros premium</li>
         <li>⬇️ Descargas offline</li>
         <li>🤖 Recomendaciones con IA</li>
-        <li>🚫 Experiencia sin anuncios</li>
       </ul>
 
       <p class="cancel-warning">

@@ -22,7 +22,6 @@ export class NavbarComponent {
   showLoginPassword = false;
   showRegisterPassword = false;
 
-  
   searchQuery = '';
   showSearchExpanded = false;
 
@@ -36,9 +35,6 @@ export class NavbarComponent {
     private router: Router,
     private logger: LoggerService
   ) {
-
-    this.logger.info('NavbarComponent inicializado');
-
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]]
@@ -62,7 +58,6 @@ export class NavbarComponent {
     const query = this.searchQuery.trim();
     if (!query) return;
 
-    this.logger.info('Usuario realizó una búsqueda', { query });
     this.router.navigate(['/buscar'], { queryParams: { q: query } });
     this.showSearchExpanded = false;
   }
@@ -124,13 +119,11 @@ export class NavbarComponent {
 
   get passwordScore(): number {
     let score = 0;
-
     if (this.hasMinLength) score++;
     if (this.hasUpperCase) score++;
     if (this.hasLowerCase) score++;
     if (this.hasNumber) score++;
     if (this.hasSpecialChar) score++;
-
     return score;
   }
 
@@ -141,32 +134,24 @@ export class NavbarComponent {
   get passwordStrengthLabel(): string {
     switch (this.passwordScore) {
       case 0:
-      case 1:
-        return 'Débil';
+      case 1: return 'Débil';
       case 2:
-      case 3:
-        return 'Media';
+      case 3: return 'Media';
       case 4:
-      case 5:
-        return 'Fuerte';
-      default:
-        return '';
+      case 5: return 'Fuerte';
+      default: return '';
     }
   }
 
   get strengthClass(): string {
     switch (this.passwordScore) {
       case 0:
-      case 1:
-        return 'weak';
+      case 1: return 'weak';
       case 2:
-      case 3:
-        return 'medium';
+      case 3: return 'medium';
       case 4:
-      case 5:
-        return 'strong';
-      default:
-        return '';
+      case 5: return 'strong';
+      default: return '';
     }
   }
 
@@ -195,15 +180,11 @@ export class NavbarComponent {
   /* ================= LOGIN ================= */
 
   toggleLogin() {
-
-    this.logger.log('Usuario abrió/cerró el modal de login');
-
     this.showLogin = !this.showLogin;
     this.showRegister = false;
   }
 
   login() {
-
     if (this.form.invalid) {
       this.logger.warn('Intento de login con formulario inválido');
       return;
@@ -218,14 +199,9 @@ export class NavbarComponent {
 
     this.auth.loginBackend(data).subscribe({
       next: (res: any) => {
-
-        this.logger.log('Login exitoso', res.user);
-
         this.auth.saveSession(res.user, res.token);
-
         this.showLogin = false;
         this.showRegister = false;
-
         this.form.reset();
 
         this.messageService.add({
@@ -234,10 +210,8 @@ export class NavbarComponent {
           detail: 'Has iniciado sesión correctamente',
           life: 3000
         });
-
       },
       error: (error) => {
-
         this.logger.error('Error en login', error);
 
         this.messageService.add({
@@ -246,26 +220,18 @@ export class NavbarComponent {
           detail: 'Correo o contraseña incorrectos',
           life: 3000
         });
-
       }
     });
-
   }
 
   /* ================= REGISTRO ================= */
 
   showRegisterModal() {
-
-    this.logger.log('Usuario abrió el modal de registro');
-
     this.showRegister = true;
     this.showLogin = false;
   }
 
   closeRegisterModal(event?: MouseEvent) {
-
-    this.logger.log('Modal de registro cerrado');
-
     if (!event ||
       (event.target as HTMLElement).classList.contains('modal-overlay') ||
       (event.target as HTMLElement).classList.contains('close-btn')) {
@@ -276,16 +242,12 @@ export class NavbarComponent {
   }
 
   switchToLogin() {
-
-    this.logger.log('Usuario cambió de registro a login');
-
     this.showRegister = false;
     this.showLogin = true;
     this.registerForm.reset();
   }
 
   onRegister() {
-
     if (this.registerForm.invalid) {
       this.logger.warn('Intento de registro con formulario inválido');
       return;
@@ -300,11 +262,7 @@ export class NavbarComponent {
     this.logger.info('Intento de registro', { email: data.correo });
 
     this.auth.register(data).subscribe({
-
       next: () => {
-
-        this.logger.log('Registro exitoso');
-
         this.showRegister = false;
 
         this.messageService.add({
@@ -315,11 +273,8 @@ export class NavbarComponent {
         });
 
         this.switchToLogin();
-
       },
-
       error: (error) => {
-
         this.logger.error('Error en registro', error);
 
         this.messageService.add({
@@ -328,33 +283,24 @@ export class NavbarComponent {
           detail: 'No se pudo registrar',
           life: 3000
         });
-
       }
-
     });
   }
 
   /* ================= PERFIL DROPDOWN ================= */
 
   toggleProfileDropdown() {
-
-    this.logger.log('Usuario abrió/cerró el dropdown del perfil');
-
     this.showProfileDropdown = !this.showProfileDropdown;
     this.showLogin = false;
     this.showRegister = false;
   }
 
   goToProfile() {
-
-    this.logger.info('Usuario navegó al perfil');
-
     this.showProfileDropdown = false;
     this.router.navigate(['/perfil']);
   }
 
   logout() {
-
     this.logger.info('Usuario cerró sesión');
 
     this.auth.logout();
@@ -369,7 +315,6 @@ export class NavbarComponent {
       life: 3000
     });
 
-  // Redirigir a la página principal
     this.router.navigate(['']);
   }
 }

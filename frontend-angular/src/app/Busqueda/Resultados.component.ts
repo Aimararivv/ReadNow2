@@ -43,18 +43,17 @@ export class ResultadosComponent implements OnInit {
     this.error = false;
     this.books = [];
 
-    this.logger.info('Buscando libros', { query: this.query });
+    this.logger.info('Búsqueda realizada', { query: this.query });
 
     this.booksService.searchBooks(this.query).subscribe({
       next: (data) => {
         this.books = data;
         this.loading = false;
-        this.logger.log('Resultados obtenidos', { total: data.length });
       },
       error: (err) => {
         this.error = true;
         this.loading = false;
-        this.logger.error('Error en búsqueda', err);
+        this.logger.error('Error en búsqueda de libros', err);
       }
     });
   }
@@ -63,7 +62,8 @@ export class ResultadosComponent implements OnInit {
     this.router.navigate(['/home']);
   }
 
-  openBook(book: any) {    if (!book?.id) return;
+  openBook(book: any) {
+    if (!book?.id) return;
 
     if (book.premium && !this.auth.isPremium()) {
       this.router.navigate(['/premium']);

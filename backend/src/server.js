@@ -6,6 +6,7 @@ import bookRoutes from './routes/books.routes.js';
 import usersRoutes from './routes/users.routes.js';
 import lecturaRoutes from './routes/lectura.routes.js';
 import dbRoutes from './routes/db.routes.js';
+import logsRoutes from './routes/logs.routes.js';
 
 const app = express();
 
@@ -26,6 +27,8 @@ app.use('/api/books', bookRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/books/read', lecturaRoutes);
 app.use('/api', dbRoutes);
+app.use('/api/logs', logsRoutes);
+
 
 // Error handler
 app.use((err, req, res, next) => {
