@@ -70,7 +70,8 @@ export class AuthService {
     return this.http.put<any>(`${this.apiUrl}/update`, data, { headers });
   }
   deleteAccount() {
-    return this.http.delete<any>(`${this.apiUrl}/delete`);
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${this.token}`);
+    return this.http.delete<any>(`${this.apiUrl}/delete`, { headers });
   }
   saveSession(user: any, token: string) {
     // Validar que el usuario y token existan

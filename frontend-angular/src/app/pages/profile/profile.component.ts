@@ -29,8 +29,8 @@ export class ProfileComponent {
     private logger: LoggerService
   ) {
     this.editForm = this.fb.group({
-      nombre: ['', [Validators.required, Validators.minLength(8)]],
-      correo: ['', [Validators.required, Validators.email]],
+      nombre: ['', [Validators.minLength(8)]],
+      correo: ['', [Validators.email]],
       password: ['', this.strongPasswordValidator]
     });
   }
@@ -51,7 +51,6 @@ export class ProfileComponent {
     return Object.keys(errors).length > 0 ? errors : null;
   }
 
-  // No loguear — este getter es llamado por Angular en cada ciclo de detección de cambios
   get userInfo(): User | null {
     return this.auth.getUser();
   }
@@ -165,43 +164,57 @@ export class ProfileComponent {
   }
 
   saveProfile() {
-    if (!this.editForm.value.nombre && !this.editForm.value.correo && !this.editForm.value.password) {
+    const nombre = this.editForm.value.nombre?.trim();
+    const correo = this.editForm.value.correo?.trim();
+    const password = this.editForm.value.password;
+
+    // Al menos un campo debe tener valor
+    if (!nombre && !correo && !password) {
       this.messageService.add({
         severity: 'warn',
         summary: 'Sin cambios',
-        detail: 'No hay cambios para guardar',
+        detail: 'Modifica al menos un campo para guardar',
         life: 3000
       });
       return;
     }
 
-    if (this.editForm.invalid) {
-      this.logger.warn('Formulario de perfil inválido al guardar');
-
+    // Validar solo los campos que se llenaron
+    if (nombre && this.editForm.get('nombre')?.invalid) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Formulario inválido',
-        detail: 'Por favor corrige los errores',
+        summary: 'Nombre inválido',
+        detail: 'El nombre debe tener mínimo 8 caracteres',
         life: 3000
       });
       return;
     }
 
-    const currentName = this.userInfo?.nombre || '';
-    const currentEmail = this.userInfo?.correo || '';
+    if (correo && this.editForm.get('correo')?.invalid) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Correo inválido',
+        detail: 'Ingresa un correo válido',
+        life: 3000
+      });
+      return;
+    }
+
+    if (password && this.editForm.get('password')?.invalid) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Contraseña inválida',
+        detail: 'Mínimo 12 caracteres, una mayúscula y un carácter especial',
+        life: 3000
+      });
+      return;
+    }
+
+    // Solo mandar los campos que realmente cambiaron
     const updateData: any = {};
-
-    if (this.editForm.value.nombre && this.editForm.value.nombre !== currentName) {
-      updateData.nombre = this.editForm.value.nombre;
-    }
-
-    if (this.editForm.value.correo && this.editForm.value.correo !== currentEmail) {
-      updateData.correo = this.editForm.value.correo;
-    }
-
-    if (this.editForm.value.password) {
-      updateData.password = this.editForm.value.password;
-    }
+    if (nombre && nombre !== this.userInfo?.nombre) updateData.nombre = nombre;
+    if (correo && correo !== this.userInfo?.correo) updateData.correo = correo;
+    if (password) updateData.password = password;
 
     if (Object.keys(updateData).length === 0) {
       this.messageService.add({
@@ -228,22 +241,17 @@ export class ProfileComponent {
         if (response.user) {
           this.auth.saveSession(response.user, this.auth.getToken()!);
 
-          if (Object.keys(updateData).length > 0) {
-            this.messageService.add({
-              severity: 'info',
-              summary: 'Sesión cerrada',
-              detail: 'Por seguridad, debes iniciar sesión nuevamente',
-              life: 3000
-            });
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Perfil actualizado',
+            detail: 'Por seguridad, debes iniciar sesión nuevamente',
+            life: 3000
+          });
 
-            setTimeout(() => {
-              this.auth.logout();
-              window.location.href = '/home';
-            }, 3500);
-
-          } else {
-            this.isEditMode = false;
-          }
+          setTimeout(() => {
+            this.auth.logout();
+            window.location.href = '/home';
+          }, 3500);
         }
       },
       error: (error) => {

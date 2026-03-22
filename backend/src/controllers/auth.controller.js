@@ -98,23 +98,25 @@ export const register = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    // Aceptar tanto nombre/correo (frontend) como name/email (legacy)
+    const nombre = req.body.nombre || req.body.name;
+    const correo = req.body.correo || req.body.email;
+    const { password } = req.body;
     const userId = req.user.id_usuario;
 
-    console.log('📝 Actualizando perfil del usuario:', userId);
+    console.log('📝 Actualizando perfil del usuario:', userId, { nombre, correo, password: !!password });
 
-    let updateQuery = 'UPDATE usuarios SET ';
-    const updateValues = [];
     const updates = [];
+    const updateValues = [];
 
-    if (name) {
+    if (nombre) {
       updates.push('nombre = $' + (updates.length + 1));
-      updateValues.push(name);
+      updateValues.push(nombre);
     }
 
-    if (email) {
+    if (correo) {
       updates.push('correo = $' + (updates.length + 1));
-      updateValues.push(email);
+      updateValues.push(correo);
     }
 
     if (password) {
@@ -127,7 +129,8 @@ export const updateProfile = async (req, res) => {
       return res.status(400).json({ message: 'No hay campos para actualizar' });
     }
 
-    updateQuery += updates.join(', ') + ' WHERE id_usuario = $' + (updates.length + 1) + ' RETURNING *';
+    const updateQuery = 'UPDATE usuarios SET ' + updates.join(', ') +
+      ' WHERE id_usuario = $' + (updates.length + 1) + ' RETURNING *';
     updateValues.push(userId);
 
     const result = await pool.query(updateQuery, updateValues);
@@ -150,17 +153,20 @@ export const updateProfile = async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Error al actualizar perfil:', error);
-    res.status(500).json({ message: 'Error al actualizar el perfil' });
+    res.status(500).json({ message: 'Error al actualizar el perfil', detail: error.message });
   }
 };
 
 export const deleteAccount = async (req, res) => {
   try {
     const userId = req.user.id_usuario;
-
     console.log('🗑️ Eliminando cuenta del usuario:', userId);
 
-    await pool.query('DELETE FROM lectura_usuario WHERE id_usuario = $1', [userId]);
+    try {
+      await pool.query('DELETE FROM lectura_usuario WHERE id_usuario = $1', [userId]);
+    } catch (e) {
+      console.warn('⚠️ lectura_usuario:', e.message);
+    }
 
     const result = await pool.query(
       'DELETE FROM usuarios WHERE id_usuario = $1 RETURNING *',
@@ -173,9 +179,10 @@ export const deleteAccount = async (req, res) => {
 
     console.log('✅ Cuenta eliminada exitosamente');
     res.json({ message: 'Cuenta eliminada exitosamente' });
+
   } catch (error) {
-    console.error('❌ Error al eliminar cuenta:', error);
-    res.status(500).json({ message: 'Error al eliminar la cuenta' });
+    console.error('❌ Error al eliminar cuenta:', error.message);
+    res.status(500).json({ message: 'Error al eliminar la cuenta', detail: error.message });
   }
 };
 
