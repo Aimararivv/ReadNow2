@@ -7,6 +7,7 @@ import usersRoutes from './routes/users.routes.js';
 import lecturaRoutes from './routes/lectura.routes.js';
 import dbRoutes from './routes/db.routes.js';
 import logsRoutes from './routes/logs.routes.js';
+import favoritesRoutes from './routes/favorites.routes.js';
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use('/api/users', usersRoutes);
 app.use('/api/books/read', lecturaRoutes);
 app.use('/api', dbRoutes);
 app.use('/api/logs', logsRoutes);
+app.use('/api/favorites', favoritesRoutes);
 
 
 // Error handler

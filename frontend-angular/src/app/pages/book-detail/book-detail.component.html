@@ -1,10 +1,10 @@
 <!-- ══════ BREADCRUMB ══════ -->
 <nav class="breadcrumb" aria-label="breadcrumb">
   <a (click)="goToHome()" style="cursor: pointer;">Inicio</a>
-    <span>›</span>
-    <a (click)="gotocategory()" style="cursor: pointer;">Categorías</a>
-      <span>›</span>
-    <a (click)="goToCatalog()" style="cursor: pointer;">Catálogo</a>
+  <span>›</span>
+  <a (click)="gotocategory()" style="cursor: pointer;">Categorías</a>
+  <span>›</span>
+  <a (click)="goToCatalog()" style="cursor: pointer;">Catálogo</a>
   <span>›</span>
   <span class="current">Detalle del Libro</span>
 </nav>
@@ -15,38 +15,59 @@
 </div>
 
 <div *ngIf="book" class="book-detail-container">
-  
+
   <!-- ENCABEZADO CON PORTADA E INFORMACIÓN PRINCIPAL -->
   <div class="book-header">
     <div class="book-cover-section">
-      <img *ngIf="book.thumbnail" 
-           [src]="book.thumbnail" 
-           [alt]="book.title" 
+      <img *ngIf="book.thumbnail"
+           [src]="book.thumbnail"
+           [alt]="book.title"
            class="book-cover" />
       <div *ngIf="!book.thumbnail" class="no-cover">
         📚 Sin Portada
       </div>
     </div>
-    
+
     <div class="book-info-section">
       <h1 class="book-title">{{ book.title }}</h1>
-      
+
+      <!-- BOTÓN FAVORITO -->
+      <button
+        class="favorite-btn"
+        [class.is-favorite]="isFavorite"
+        [disabled]="favoriteLoading"
+        (click)="toggleFavorite()"
+        [attr.aria-label]="isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+        [title]="isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'">
+
+        <svg class="heart-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+                   C2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09
+                   C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5
+                   c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+
+        <span class="favorite-label">
+          {{ favoriteLoading ? 'Guardando...' : (isFavorite ? 'En favoritos' : 'Agregar a favoritos') }}
+        </span>
+      </button>
+
       <div class="book-meta">
         <p class="book-author">
-          <span class="label">Autor:</span> 
+          <span class="label">Autor:</span>
           <span class="value">{{ book.author }}</span>
         </p>
-        
+
         <p class="book-downloads">
-          <span class="label">📥 Descargas:</span> 
+          <span class="label">📥 Descargas:</span>
           <span class="value">{{ book.downloadCount | number }}</span>
         </p>
-        
+
         <p class="book-languages">
-          <span class="label">🌍 Idiomas:</span> 
+          <span class="label">🌍 Idiomas:</span>
           <span class="value">{{ book.languages?.join(', ') || 'No especificado' }}</span>
         </p>
-        
+
         <div class="book-subjects" *ngIf="book.subjects && book.subjects.length > 0">
           <span class="label">📚 Categorías:</span>
           <div class="subjects-list">
@@ -56,7 +77,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="book-premium-badge" *ngIf="book.premium">
         <span class="premium-icon">⭐</span>
         <span class="premium-text">LIBRO PREMIUM</span>
@@ -68,11 +89,11 @@
   <div class="book-description-section">
     <h2 class="section-title">📖 Descripción</h2>
     <div class="description-content">
-      <p *ngIf="book.description && book.description !== 'Sin descripción disponible'" 
+      <p *ngIf="book.description && book.description !== 'Sin descripción disponible'"
          class="book-description">
         {{ book.description }}
       </p>
-      <p *ngIf="!book.description || book.description === 'Sin descripción disponible'" 
+      <p *ngIf="!book.description || book.description === 'Sin descripción disponible'"
          class="book-description fallback">
         {{ getBookDescription() }}
       </p>
@@ -82,23 +103,23 @@
   <!-- SECCIÓN DE ACCIONES -->
   <div class="book-actions-section">
     <h2 class="section-title">🎯 Acciones</h2>
-    
+
     <div class="action-buttons">
       <!-- BOTÓN DE LECTURA -->
-      <button *ngIf="canRead && readLink" 
-              (click)="readBook()" 
+      <button *ngIf="canRead && readLink"
+              (click)="readBook()"
               class="btn btn-primary">
         <span class="btn-icon">📖</span>
         <span class="btn-text">Leer Libro</span>
       </button>
-      
-      <button *ngIf="canRead && !readLink" 
+
+      <button *ngIf="canRead && !readLink"
               disabled
               class="btn btn-disabled">
         <span class="btn-icon">⏳</span>
         <span class="btn-text">Verificando acceso...</span>
       </button>
-      
+
       <!-- MENSAJE DE LÍMITE ALCANZADO -->
       <div *ngIf="!canRead && !book.premium" class="limit-warning">
         <div class="warning-header">
@@ -113,7 +134,7 @@
           <span class="btn-text">Upgrade a Premium</span>
         </button>
       </div>
-      
+
       <!-- MENSAJE DE LIBRO PREMIUM -->
       <div *ngIf="!canRead && book.premium" class="premium-warning">
         <div class="warning-header">

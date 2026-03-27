@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BooksService } from '../../core/services/books.service';
 import { LoggerService } from '../../core/services/logger.service';
 import { AuthService } from '../../core/services/auth.service';
+import { FavoritesService } from '../../core/services/favorites.service';
 
 @Component({
   selector: 'app-book-detail',
@@ -18,10 +19,13 @@ export class BookDetailComponent implements OnInit {
   loading = true;
   readLink: string | null = null;
   canRead = false;
+  isFavorite = false;
+  favoriteLoading = false;
 
   constructor(
     private route: ActivatedRoute,
     private booksService: BooksService,
+    private favoritesService: FavoritesService,
     private router: Router,
     public auth: AuthService,
     private logger: LoggerService
@@ -54,6 +58,7 @@ export class BookDetailComponent implements OnInit {
         this.book = data;
         this.loading = false;
         this.checkReadPermission();
+        this.checkIfFavorite();
       },
       error: (err) => {
         this.logger.error('Error obteniendo libro', err);
@@ -102,7 +107,6 @@ export class BookDetailComponent implements OnInit {
       },
       error: (err: any) => {
         this.logger.error('Error obteniendo enlace de lectura', err);
-
         if (err.status === 403) {
           this.canRead = false;
           this.logger.warn('Acceso denegado al enlace: requiere premium', { bookId: this.book?.id });
@@ -119,6 +123,79 @@ export class BookDetailComponent implements OnInit {
       this.logger.warn('Intento de lectura sin enlace disponible', { bookId: this.book?.id });
     }
   }
+
+
+  checkIfFavorite() {
+    if (!this.auth.isLogged() || !this.book) return;
+
+    // Extrae el id_usuario del token 
+    const token = this.auth.getToken();
+    if (!token) return;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const userId = payload.id_usuario;
+
+      this.favoritesService.checkFavorite(userId, this.book.id).subscribe({
+        next: (res) => this.isFavorite = res.isFavorite,
+        error: () => this.isFavorite = false
+      });
+    } catch {
+      this.isFavorite = false;
+    }
+  }
+
+  toggleFavorite() {
+    if (!this.auth.isLogged()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    const token = this.auth.getToken();
+    if (!token || !this.book) return;
+
+    let userId: number;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      userId = payload.id_usuario;
+    } catch {
+      return;
+    }
+
+    this.favoriteLoading = true;
+
+    if (this.isFavorite) {
+      this.favoritesService.removeFavorite(userId, this.book.id).subscribe({
+        next: () => {
+          this.isFavorite = false;
+          this.favoriteLoading = false;
+          this.logger.info('Libro eliminado de favoritos', { bookId: this.book?.id });
+        },
+        error: (err) => {
+          this.logger.error('Error al eliminar favorito', err);
+          this.favoriteLoading = false;
+        }
+      });
+    } else {
+      this.favoritesService.addFavorite({
+        bookid: this.book.id,
+        titulo: this.book.title,
+        autor: this.book.author,
+        imagen: this.book.thumbnail || ''
+      }).subscribe({
+        next: () => {
+          this.isFavorite = true;
+          this.favoriteLoading = false;
+          this.logger.info('Libro agregado a favoritos', { bookId: this.book?.id });
+        },
+        error: (err) => {
+          this.logger.error('Error al agregar favorito', err);
+          this.favoriteLoading = false;
+        }
+      });
+    }
+  }
+
 
   getBookDescription(): string {
     const title = this.book.title || 'este libro';
