@@ -1,0 +1,62 @@
+<!-- BREADCRUMB -->
+<nav class="breadcrumb" aria-label="breadcrumb">
+  <a (click)="goToHome()" style="cursor: pointer;">Inicio</a>
+  <span>›</span>
+  <span class="current">Mis Favoritos</span>
+</nav>
+
+<!-- LOADING -->
+<div class="search-loading" *ngIf="loading">
+  <div class="loading-spinner">⏳</div>
+  <p>Cargando favoritos...</p>
+</div>
+
+<div class="search-error" *ngIf="error && !loading">
+  <p>⚠️ Ocurrió un error al cargar tus favoritos. Intenta de nuevo.</p>
+</div>
+
+<section class="catalog-container" *ngIf="!loading && !error">
+  <div class="catalog-box">
+
+    <div class="catalog-header">
+      <h2>Mis Favoritos <span class="query-text"></span></h2>
+      <span>{{ favorites.length }} {{ favorites.length === 1 ? 'libro guardado' : 'libros guardados' }}</span>
+    </div>
+
+    <hr>
+
+    <!-- VACÍO -->
+    <div class="search-empty" *ngIf="favorites.length === 0">
+      <p>Aún no tienes libros en favoritos</p>
+      <p class="search-empty-hint">Explora el catálogo y marca los que te interesen con ❤️</p>
+      <button class="btn-catalog" (click)="goToHome()">Explorar catálogo</button>
+    </div>
+
+    <div class="books-grid" *ngIf="favorites.length > 0">
+      <div
+        class="book-card"
+        *ngFor="let book of favorites"
+        (click)="openBook(book)">
+
+        <div class="remove-btn" (click)="removeFavorite($event, book)" title="Quitar de favoritos">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+                     C2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09
+                     C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5
+                     c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+        </div>
+
+        <img
+          [src]="book.imagen || 'assets/default-book-cover.jpg'"
+          [alt]="book.titulo"
+        />
+
+        <h3>{{ book.titulo }}</h3>
+        <p class="author">{{ book.autor }}</p>
+
+      </div>
+    </div>
+
+  </div>
+</section>

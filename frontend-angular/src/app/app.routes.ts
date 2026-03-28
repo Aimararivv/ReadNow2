@@ -9,6 +9,7 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { ResultadosComponent } from './Busqueda/Resultados.component';
 
 import { premiumGuard } from './core/services/premium.guard';
+import { FavoritesComponent } from './favorites/favorites.component';
 
 export const routes: Routes = [
   {
@@ -43,7 +44,10 @@ export const routes: Routes = [
     path: 'buscar',
     component: ResultadosComponent 
   },
-
+  {
+    path: 'favoritos',
+    component: FavoritesComponent 
+  },
   // Libro (ACCESO PARA TODOS)
   {
     path: 'book/:id',
