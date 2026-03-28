@@ -28,7 +28,7 @@
         <p class="profile-email">{{ userInfo?.correo || 'usuario&#64;readnow.com' }}</p>
         <div class="profile-badges">
           <span class="badge" [class.premium-badge]="isPremium" [class.admin-badge]="isAdmin">
-            {{ isPremium ? 'PREMIUM' : isAdmin ? 'ADMIN' : 'BÁSICO' }}
+            {{ isPremium ? '👑 PREMIUM' : isAdmin ? '🛡️ ADMIN' : '📖 BÁSICO' }}
           </span>
         </div>
       </div>
@@ -50,7 +50,7 @@
           </div>
           <div class="info-item">
             <label>Correo electrónico</label>
-            <p>{{ userInfo?.correo || 'usuario&#64;readnow.com' }}</p>
+            <p>{{ userInfo?.correo || 'usuario&#67;readnow.com' }}</p>
           </div>
           <div class="info-item">
             <label>Fecha de registro</label>

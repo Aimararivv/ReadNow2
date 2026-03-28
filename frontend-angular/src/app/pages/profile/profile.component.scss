@@ -108,7 +108,7 @@
   z-index: 2;
 
   &.premium {
-    background: linear-gradient(135deg, #f5c842, #d4a017);
+  background: linear-gradient(135deg, gold, gold);
     box-shadow: 0 4px 16px rgba(245, 200, 66, 0.4);
   }
 
@@ -161,11 +161,20 @@
   backdrop-filter: blur(10px);
 
   &.premium-badge {
-    background: linear-gradient(135deg, rgba(245, 200, 66, 0.2), rgba(212, 160, 23, 0.2));
-    border-color: rgba(245, 200, 66, 0.5);
-    color: #f5c842;
-    box-shadow: 0 4px 16px rgba(245, 200, 66, 0.2);
-  }
+  background: linear-gradient(135deg, gold, gold);
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 800;
+  color: #000;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 
+    0 6px 20px rgba(245, 200, 66, 0.4),
+    0 2px 8px rgba(212, 160, 23, 0.3);
+}
 
   &.admin-badge {
     background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2));
@@ -249,7 +258,7 @@
 
     &.premium {
       background: linear-gradient(135deg, rgba(245, 200, 66, 0.2), rgba(212, 160, 23, 0.2));
-      color: #d4a017;
+      color: #000;
       border: 1px solid rgba(245, 200, 66, 0.3);
     }
 
