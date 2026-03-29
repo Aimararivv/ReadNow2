@@ -62,7 +62,7 @@ isB: any;
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Tu sesión ha expirado, por favor inicia sesión nuevamente',
+          detail: 'Error al cargar tu historial de lectura. Inténtalo nuevamente.',
           life: 3000
         });
       }
