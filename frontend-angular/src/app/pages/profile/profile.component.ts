@@ -61,7 +61,7 @@ export class ProfileComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Error al cargar el historial de lectura',
+          detail: 'Tu sesión ha expirado, por favor inicia sesión nuevamente',
           life: 3000
         });
       }

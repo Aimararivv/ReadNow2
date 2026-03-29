@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 22px 56px;
-  margin: 30px 50px;
+  margin: 30px auto;
   border-radius: 28px;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.98) 100%);
   backdrop-filter: blur(20px) saturate(180%);
@@ -15,12 +15,12 @@
     inset 0 -1px 0 rgba(0, 0, 0, 0.05);
   width: calc(100% - 100px);
   max-width: 1600px;
-  margin-left: auto;
-  margin-right: auto;
   border: 1px solid rgba(255, 255, 255, 0.3);
   position: relative;
   z-index: 100;
-  gap: 32px;
+  gap: 20px;           /* ← gap flexible, no fijo */
+  box-sizing: border-box;
+  overflow: visible;   /* para que el dropdown no se corte */
 
   &::before {
     content: '';
@@ -1047,20 +1047,21 @@ input.invalid {
 
 .premium-badge {
   background: linear-gradient(135deg, gold, gold);
-  padding: 8px 16px;
+  padding: 8px 14px;
   border-radius: 999px;
   font-weight: 800;
-  color: #000;
-  font-size: 0.85rem;
+  color: #000000;
+  font-size: 0.82rem;
   letter-spacing: 0.5px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  box-shadow: 
-    0 6px 20px rgba(245, 200, 66, 0.4),
-    0 2px 8px rgba(212, 160, 23, 0.3);
+  gap: 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow:
+    0 6px 20px rgba(245, 158, 11, 0.35),
+    0 2px 8px rgba(245, 158, 11, 0.2);
 }
-
 
 /* ===== BARRA DE FUERZA ===== */
 

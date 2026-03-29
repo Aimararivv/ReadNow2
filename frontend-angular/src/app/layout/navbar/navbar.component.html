@@ -12,6 +12,9 @@
     <a routerLink="/categorias" routerLinkActive="active">
       Categorías
     </a>
+    <a routerLink="/favoritos" routerLinkActive="active">
+      Favoritos
+    </a>
     <a routerLink="/premium" routerLinkActive="active">
       Premium
     </a>
@@ -96,7 +99,7 @@
         <span class="profile-icon">👤</span>
         <span class="profile-name">{{ auth.getUser()?.nombre || 'Usuario' }}</span>
       </button>
-      
+     
       <div class="profile-menu" *ngIf="showProfileDropdown">
         <div class="profile-option" (click)="goToProfile()">
           <span class="option-icon">👤</span>
