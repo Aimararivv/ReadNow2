@@ -67,60 +67,42 @@
         </div>
       </div>
 
-      <!-- Estadísticas -->
+      <!-- Historial de libros leídos -->
       <div class="info-section">
         <h2 class="section-title">
-          <span class="icon">📊</span>
-          Estadísticas de Lectura
+          <span class="icon">📚</span>
+          Historial de Lectura
         </h2>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-number">0</div>
-            <div class="stat-label">Libros Leídos</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number">0</div>
-            <div class="stat-label">Libros Favoritos</div>
-          </div>
+        
+        <div *ngIf="isLoadingHistory" class="loading-history">
+          <div class="loading-spinner">⏳ Cargando historial...</div>
         </div>
-
-        <!-- Historial de libros leídos -->
-        <div class="reading-history">
-          <h3 class="history-title">
-            <span class="icon">📚</span>
-            Historial de Lectura
-          </h3>
-          
-          <div *ngIf="isLoadingHistory" class="loading-history">
-            <div class="loading-spinner">⏳ Cargando historial...</div>
-          </div>
-          
-          <div *ngIf="!isLoadingHistory && readingHistory.length === 0" class="empty-history">
-            <div class="empty-icon">📖</div>
-            <p class="empty-text">Aún no has leído ningún libro</p>
-            <p class="empty-subtext">Explora nuestro catálogo y comienza tu aventura de lectura</p>
-          </div>
-          
-          <div *ngIf="!isLoadingHistory && readingHistory.length > 0" class="books-grid">
-            <div *ngFor="let item of readingHistory" class="book-item" 
-                 [class.no-cover]="!item.book_details?.thumbnail">
-              <div class="book-cover">
-                <img *ngIf="item.book_details?.thumbnail" 
-                     [src]="item.book_details!.thumbnail" 
-                     [alt]="item.book_details?.title || 'Portada del libro'" 
-                     (error)="onImageError($event)" />
-                <div *ngIf="!item.book_details?.thumbnail" class="no-cover-placeholder">
-                  📚
-                </div>
+        
+        <div *ngIf="!isLoadingHistory && readingHistory.length === 0" class="empty-history">
+          <div class="empty-icon">📖</div>
+          <p class="empty-text">Aún no has leído ningún libro</p>
+          <p class="empty-subtext">Explora nuestro catálogo y comienza tu aventura de lectura</p>
+        </div>
+        
+        <div *ngIf="!isLoadingHistory && readingHistory.length > 0" class="books-grid">
+          <div *ngFor="let item of readingHistory" class="book-item" 
+               [class.no-cover]="!item.book_details?.thumbnail">
+            <div class="book-cover">
+              <img *ngIf="item.book_details?.thumbnail" 
+                   [src]="item.book_details!.thumbnail" 
+                   [alt]="item.book_details?.title || 'Portada del libro'" 
+                   (error)="onImageError($event)" />
+              <div *ngIf="!item.book_details?.thumbnail" class="no-cover-placeholder">
+                📚
               </div>
-              <div class="book-info">
-                <h4 class="book-title">{{ item.book_details?.title || 'Título no disponible' }}</h4>
-                <p class="book-author">{{ item.book_details?.author || 'Autor no disponible' }}</p>
-                <div class="book-meta">
-                  <span class="reading-date">Leído el {{ item.fecha_lectura }}</span>
-                  <div class="book-rating">
-                    <span class="stars">⭐⭐⭐⭐⭐</span>
-                  </div>
+            </div>
+            <div class="book-info">
+              <h4 class="book-title">{{ item.book_details?.title || 'Título no disponible' }}</h4>
+              <p class="book-author">{{ item.book_details?.author || 'Autor no disponible' }}</p>
+              <div class="book-meta">
+                <span class="reading-date">Leído el {{ item.fecha_lectura }}</span>
+                <div class="book-rating">
+                  <span class="stars">⭐⭐⭐⭐⭐</span>
                 </div>
               </div>
             </div>
