@@ -98,7 +98,12 @@ isB: any;
   }
 
   getFormattedDate(): string {
-    return new Date().toLocaleDateString('es-ES', {
+    const creationDate = this.userInfo?.fecha_creacion;
+    if (!creationDate) {
+      return 'No disponible';
+    }
+    
+    return new Date(creationDate).toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
