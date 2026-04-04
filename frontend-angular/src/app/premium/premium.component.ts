@@ -76,7 +76,7 @@ export class PremiumComponent implements OnInit, OnDestroy {
     { icon: '📖', name: 'Leer completo', path: '/book/read', requiresPremium: true },
     { icon: '⬇️', name: 'Descargar', path: '/book/download', requiresPremium: true },
     { icon: '🤖', name: 'Recomendaciones IA', path: '/recommendations', requiresPremium: true },
-    { icon: '📊', name: 'Historial completo', path: '/history', requiresPremium: true },
+    { icon: '📊', name: 'Historial completo', path: '/history', requiresPremium: false },
     { icon: '⚙️', name: 'Perfil / Config', path: '/profile', requiresPremium: false },
   ];
 
