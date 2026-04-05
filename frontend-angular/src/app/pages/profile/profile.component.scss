@@ -999,3 +999,64 @@
     font-size: 13px;
   }
 }
+
+/* FOTO DE PERFIL */
+.avatar-circle {
+  position: relative;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  span {
+    z-index: 1;
+  }
+}
+
+/* Botón de cambiar foto */
+.change-photo-btn {
+  position: absolute;
+  bottom: -8px;
+  left: 35%;
+  transform: translateX(-50%);
+  background: #1a6fa8;
+  color: white;
+  font-size: 14px;
+  padding: 6px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #0f5c8a;
+    transform: translateX(-50%) scale(1.05);
+  }
+}
+
+/* Botón de guardar foto */
+.save-photo-btn {
+  position: absolute;
+  bottom: -8px;
+  left: 65%;
+  transform: translateX(-50%);
+  background: #22c55e;
+  color: white;
+  font-size: 14px;
+  padding: 6px 10px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+  z-index: 10;
+
+  &:hover {
+    background: #16a34a;
+    transform: translateX(-50%) scale(1.05);
+  }
+}

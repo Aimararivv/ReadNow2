@@ -89,7 +89,7 @@ export const saveCardData = async (req, res) => {
       user: result.rows[0]
     });
   } catch (error) {
-    console.error('❌ Error guardando datos de tarjeta:', error);
+    console.error(' Error guardando datos de tarjeta:', error);
     res.status(500).json({ message: 'Error en el servidor', error: error.message });
   }
 };
@@ -104,5 +104,116 @@ export const getAllUsers = async (req, res) => {
   } catch (error) {
     console.error('Error obteniendo usuarios:', error);
     res.status(500).json({ message: 'Error obteniendo usuarios' });
+  }
+
+  
+};
+
+export const getMe = async (req, res) => {
+  try {
+    console.log(' getMe - req.user:', req.user);
+    
+    const userId = req.user?.id_usuario;
+    if (!userId) {
+      console.log(' getMe - No hay userId en req.user');
+      return res.status(400).json({ message: 'Usuario no identificado' });
+    }
+    
+    console.log(' getMe - Buscando usuario:', userId);
+    
+    const result = await pool.query(
+      'SELECT id_usuario, nombre, correo, role, foto_perfil, fecha_creacion FROM usuarios WHERE id_usuario = $1',
+      [userId]
+    );
+    
+    console.log(' getMe - Resultado:', result.rows.length, 'filas');
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+    
+    res.json({
+      message: 'Usuario encontrado',
+      user: result.rows[0]
+    });
+  } catch (error) {
+    console.error(' ERROR en getMe:', error);
+    res.status(500).json({ message: 'Error obteniendo usuario', error: error.message });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    console.log('======================');
+    console.log('');
+    console.log('Headers:', req.headers);
+    console.log('Body:', req.body);
+    console.log('File:', req.file);
+    console.log('User:', req.user);
+    console.log('======================');
+
+    const userId = req.user?.id_usuario;
+    if (!userId) {
+      console.log(' ERROR: No hay userId');
+      return res.status(400).json({ message: 'Usuario no identificado' });
+    }
+
+    // Obtener valores actuales del usuario
+    const currentUserResult = await pool.query(
+      'SELECT * FROM usuarios WHERE id_usuario = $1',
+      [userId]
+    );
+    const currentUser = currentUserResult.rows[0];
+    console.log(' Usuario actual en BD:', currentUser?.id_usuario);
+
+    // Procesar foto
+    let foto_perfil = currentUser?.foto_perfil || null;
+    if (req.file) {
+      foto_perfil = `http://localhost:5036/uploads/profile/${req.file.filename}`;
+      console.log(' NUEVA FOTO:', foto_perfil);
+    } else {
+      console.log(' NO SE RECIBIÓ ARCHIVO');
+    }
+
+    // Procesar otros campos
+    const nombre = req.body.nombre || currentUser?.nombre;
+    const correo = req.body.correo || currentUser?.correo;
+    let password = currentUser?.password;
+
+    // Si hay nueva contraseña, encriptarla
+    if (req.body.password) {
+      password = await bcrypt.hash(req.body.password, 10);
+    }
+
+    console.log(' DATOS A ACTUALIZAR:', { nombre, correo, foto_perfil });
+
+    // Actualizar usuario
+    const result = await pool.query(
+      `UPDATE usuarios
+       SET nombre = $1,
+           correo = $2,
+           password = $3,
+           foto_perfil = $4
+       WHERE id_usuario = $5
+       RETURNING id_usuario, nombre, correo, role, foto_perfil, fecha_creacion`,
+      [nombre, correo, password, foto_perfil, userId]
+    );
+
+    console.log(' RESULTADO SQL - Rows:', result.rowCount);
+
+    const updatedUser = result.rows[0];
+    console.log(' USUARIO ACTUALIZADO:', updatedUser);
+
+    res.json({
+      message: 'Perfil actualizado',
+      user: updatedUser
+    });
+
+  } catch (error) {
+    console.error(' ERROR EN updateProfile:', error);
+    res.status(500).json({
+      message: 'Error al actualizar perfil',
+      error: error.message
+    });
   }
 };

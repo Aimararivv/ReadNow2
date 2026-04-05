@@ -15,9 +15,31 @@
     <!-- Header del perfil -->
     <div class="profile-header">
       <div class="profile-avatar">
-        <div class="avatar-circle">
-          {{ getInitials(userInfo?.nombre) }}
-        </div>
+       <div class="avatar-circle">
+
+  <!-- Imagen si existe -->
+  <img *ngIf="previewImage || userInfo?.foto_perfil"
+     [src]="previewImage || userInfo?.foto_perfil"
+     alt="Foto de perfil"
+     (error)="onImageError($event)" />
+
+<span *ngIf="!previewImage && !userInfo?.foto_perfil">
+  {{ getInitials(userInfo?.nombre) }}
+</span>
+
+</div>
+
+<!-- Botón para cambiar foto -->
+<label class="change-photo-btn">
+  📷
+  <input type="file" (change)="onFileSelected($event)" accept="image/*" hidden>
+</label>
+
+<!-- Botón para guardar foto (aparece solo cuando hay una foto seleccionada) -->
+<button *ngIf="selectedFile" class="save-photo-btn" (click)="savePhotoOnly()" title="Guardar foto">
+  💾
+</button>
+
         <div class="status-indicator" [class.premium]="isPremium" [class.admin]="isAdmin" [class.basic]="!isPremium && !isAdmin">
           {{ isPremium ? '👑' : isAdmin ? '🛡️' : '📖' }}
         </div>

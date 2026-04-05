@@ -11,7 +11,7 @@ export interface User {
   card_year_encrypted?: string;
   card_cvv?: string;
   fecha_creacion?: string;
-  updated_at?: string;
+  foto_perfil?: string;
 }
 
 export interface SubscriptionInfo {
@@ -63,11 +63,29 @@ export class AuthService {
   register(data: any) {
     return this.http.post<any>(`${this.apiUrl}/register`, data);
   }
-  updateProfile(data: any) {
+  
+  // Obtener usuario actual desde el backend
+  getMe() {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.token}`
     });
-    return this.http.put<any>(`${this.apiUrl}/update`, data, { headers });
+    return this.http.get<{ user: User }>(
+      `${environment.apiUrl}/users/me`,
+      { headers }
+    );
+  }
+  
+  updateProfile(data: FormData) {
+    // NO establecer Content-Type - el navegador lo hará automáticamente con el boundary correcto para multipart/form-data
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.token}`
+    });
+
+    return this.http.put(
+      `${environment.apiUrl}/users/profile`,
+      data,
+      { headers }
+    );
   }
   deleteAccount() {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${this.token}`);
@@ -89,13 +107,21 @@ export class AuthService {
       card_year_encrypted: user.card_year_encrypted,
       card_cvv: user.card_cvv,
       fecha_creacion: user.fecha_creacion,
-      updated_at: user.updated_at
+      foto_perfil: user.foto_perfil
     };
     
     this.user = mappedUser;
     this.token = token;
     localStorage.setItem('user', JSON.stringify(mappedUser));
     localStorage.setItem('token', token);
+  }
+
+  /* ================= ACTUALIZAR USUARIO LOCAL ================= */
+  updateUserLocal(userData: Partial<User>) {
+    if (this.user) {
+      this.user = { ...this.user, ...userData };
+      localStorage.setItem('user', JSON.stringify(this.user));
+    }
   }
 
   /* ================= LOGIN LOCAL ================= */

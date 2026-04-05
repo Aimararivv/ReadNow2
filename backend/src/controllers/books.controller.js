@@ -91,6 +91,19 @@ export const getBookById = async (req, res) => {
     const { id } = req.params;
 
     const response = await fetch(`https://gutendex.com/books/${id}`);
+    
+    // Verificar si la respuesta es válida
+    if (!response.ok) {
+      console.error(`❌ Error HTTP de Gutenberg: ${response.status}`);
+      return res.status(502).json({ message: 'Error al obtener detalles del libro de Gutenberg' });
+    }
+    
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.error('❌ Gutenberg devolvió contenido no-JSON:', contentType);
+      return res.status(502).json({ message: 'Respuesta inválida del servidor de libros' });
+    }
+    
     const book = await response.json();
 
     const bookDetail = {
@@ -108,7 +121,7 @@ export const getBookById = async (req, res) => {
 
     res.json(bookDetail);
   } catch (error) {
-    console.error('Error fetching book details from Gutenberg:', error);
+    console.error('❌ Error fetching book details from Gutenberg:', error.message);
     res.status(500).json({ message: 'Error al obtener detalles del libro' });
   }
 };
@@ -118,6 +131,19 @@ export const getPublicBookById = async (req, res) => {
     const { id } = req.params;
 
     const response = await fetch(`https://gutendex.com/books/${id}`);
+    
+    // Verificar si la respuesta es válida
+    if (!response.ok) {
+      console.error(`❌ Error HTTP de Gutenberg: ${response.status}`);
+      return res.status(502).json({ message: 'Error al obtener detalles del libro de Gutenberg' });
+    }
+    
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.error('❌ Gutenberg devolvió contenido no-JSON:', contentType);
+      return res.status(502).json({ message: 'Respuesta inválida del servidor de libros' });
+    }
+    
     const book = await response.json();
 
     const bookDetail = {
@@ -135,7 +161,7 @@ export const getPublicBookById = async (req, res) => {
 
     res.json(bookDetail);
   } catch (error) {
-    console.error('Error fetching public book details from Gutenberg:', error);
+    console.error('❌ Error fetching public book details from Gutenberg:', error.message);
     res.status(500).json({ message: 'Error al obtener detalles del libro' });
   }
 };
