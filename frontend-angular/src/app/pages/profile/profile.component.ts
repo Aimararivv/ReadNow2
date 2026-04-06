@@ -33,8 +33,17 @@ export class ProfileComponent implements OnInit {
   showEditPassword = false;
   showDeleteModal = false;
 
+  // ================= HISTORIAL =================
+  allReadingHistory: ReadingHistoryItem[] = [];
   readingHistory: ReadingHistoryItem[] = [];
   isLoadingHistory = false;
+
+  historyCurrentPage: number = 1;
+  historyPerPage: number = 6;
+
+  get historyTotalPages(): number {
+    return Math.ceil(this.allReadingHistory.length / this.historyPerPage);
+  }
 
   // ================= FOTO DE PERFIL =================
   selectedFile: File | null = null;
@@ -56,28 +65,24 @@ export class ProfileComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('👤 USUARIO EN ngOnInit:', this.userInfo);
-    console.log('📸 FOTO_PERFIL:', this.userInfo?.foto_perfil);
-    
-    // Refrescar datos del usuario desde el backend
+    this.logger.info('Perfil iniciado', { userId: this.userInfo?.id_usuario });
     this.refreshUserData();
-    
     this.loadReadingHistory();
   }
-  
-  // Refrescar datos del usuario desde el backend
+
+  // ================= REFRESCAR USUARIO =================
   refreshUserData() {
     if (!this.auth.getToken()) return;
-    
+
     this.auth.getMe().subscribe({
       next: (res) => {
-        console.log('🔄 USUARIO REFRESCADO:', res.user);
+        this.logger.info('Datos de usuario refrescados', { userId: res.user?.id_usuario });
         if (res.user) {
           this.auth.updateUserLocal(res.user);
         }
       },
       error: (err) => {
-        console.error('❌ Error al refrescar usuario:', err);
+        this.logger.error('Error al refrescar usuario', err);
       }
     });
   }
@@ -90,11 +95,14 @@ export class ProfileComponent implements OnInit {
 
     this.readingHistoryService.getReadingHistory().subscribe({
       next: (history) => {
-        this.readingHistory = history;
+        this.allReadingHistory = history;
+        this.updateHistoryPage();
         this.isLoadingHistory = false;
+        this.logger.info('Historial cargado correctamente', { total: history.length });
       },
-      error: () => {
+      error: (err) => {
         this.isLoadingHistory = false;
+        this.logger.error('Error al cargar historial', err);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -103,6 +111,18 @@ export class ProfileComponent implements OnInit {
         });
       }
     });
+  }
+
+  updateHistoryPage() {
+    const start = (this.historyCurrentPage - 1) * this.historyPerPage;
+    const end = start + this.historyPerPage;
+    this.readingHistory = this.allReadingHistory.slice(start, end);
+  }
+
+  goToHistoryPage(page: number) {
+    if (page < 1 || page > this.historyTotalPages) return;
+    this.historyCurrentPage = page;
+    this.updateHistoryPage();
   }
 
   // ================= VALIDACIÓN PASSWORD =================
@@ -158,6 +178,7 @@ export class ProfileComponent implements OnInit {
 
     if (file) {
       this.selectedFile = file;
+      this.logger.info('Foto de perfil seleccionada', { fileName: file.name });
 
       const reader = new FileReader();
       reader.onload = () => {
@@ -177,6 +198,7 @@ export class ProfileComponent implements OnInit {
         correo: this.userInfo?.correo || '',
         password: ''
       });
+      this.logger.info('Modo edición activado', {});
     }
   }
 
@@ -185,60 +207,76 @@ export class ProfileComponent implements OnInit {
     this.previewImage = null;
     this.selectedFile = null;
     this.editForm.reset();
+    this.logger.info('Edición cancelada', {});
   }
 
   // ================= GUARDAR =================
-  saveProfile() {
-    console.log('🚀 ENVIANDO PERFIL...');
+saveProfile() {
+  const formData = new FormData();
 
-    const formData = new FormData();
+  if (this.selectedFile) {
+    formData.append('foto', this.selectedFile);
+  }
 
-    // Agregar foto si existe
-    if (this.selectedFile) {
-      formData.append('foto', this.selectedFile);
-    }
+  const nombre = this.editForm.get('nombre')?.value;
+  const correo = this.editForm.get('correo')?.value;
+  const password = this.editForm.get('password')?.value;
 
-    // Agregar datos del formulario
-    const nombre = this.editForm.get('nombre')?.value;
-    const correo = this.editForm.get('correo')?.value;
-    const password = this.editForm.get('password')?.value;
+  if (nombre) formData.append('nombre', nombre);
+  if (correo) formData.append('correo', correo);
+  if (password) formData.append('password', password);
 
-    if (nombre) formData.append('nombre', nombre);
-    if (correo) formData.append('correo', correo);
-    if (password) formData.append('password', password);
+  const correoOriginal = this.userInfo?.correo || '';
+  const correocambio = correo && correo !== correoOriginal;
+  const cambioSensible = !!correocambio || !!password;
 
-    this.auth.updateProfile(formData).subscribe({
-      next: (res: any) => {
-        console.log('✅ RESPUESTA:', res);
+  this.logger.info('Guardando perfil', { nombre, correo, tienePassword: !!password, cambioSensible });
 
-        if (res.user) {
-          // Actualizar el usuario en el servicio de autenticación
-          this.auth.updateUserLocal(res.user);
-        }
+  this.auth.updateProfile(formData).subscribe({
+    next: (res: any) => {
+      if (res.user) {
+        this.auth.updateUserLocal(res.user);
+      }
 
-        // Limpiar preview y archivo seleccionado
-        this.previewImage = null;
-        this.selectedFile = null;
-        this.isEditMode = false;
+      this.previewImage = null;
+      this.selectedFile = null;
+      this.isEditMode = false;
 
+      this.logger.info('Perfil actualizado correctamente', { userId: res.user?.id_usuario, cambioSensible });
+
+      if (cambioSensible) {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Sesión cerrada',
+          detail: 'Tus datos fueron actualizados. Por seguridad, inicia sesión nuevamente.',
+          life: 4000
+        });
+
+        setTimeout(() => {
+          this.auth.logout();
+          window.location.href = '/home';
+        }, 4000);
+
+      } else {
         this.messageService.add({
           severity: 'success',
           summary: 'Éxito',
-          detail: 'Perfil actualizado',
-          life: 3000
-        });
-      },
-      error: (err) => {
-        console.error('❌ ERROR:', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: err.error?.message || 'Error al actualizar perfil',
+          detail: 'Perfil actualizado correctamente',
           life: 3000
         });
       }
-    });
-  }
+    },
+    error: (err) => {
+      this.logger.error('Error al actualizar perfil', err);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: err.error?.message || 'Error al actualizar perfil',
+        life: 3000
+      });
+    }
+  });
+}
 
   // ================= GUARDAR SOLO FOTO =================
   savePhotoOnly() {
@@ -252,22 +290,21 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
-    console.log('📸 GUARDANDO SOLO FOTO...');
+    this.logger.info('Guardando foto de perfil', {});
 
     const formData = new FormData();
     formData.append('foto', this.selectedFile);
 
     this.auth.updateProfile(formData).subscribe({
       next: (res: any) => {
-        console.log('✅ FOTO GUARDADA:', res);
-
         if (res.user) {
           this.auth.updateUserLocal(res.user);
         }
 
-        // Limpiar estados
         this.previewImage = null;
         this.selectedFile = null;
+
+        this.logger.info('Foto de perfil actualizada correctamente', {});
 
         this.messageService.add({
           severity: 'success',
@@ -277,7 +314,7 @@ export class ProfileComponent implements OnInit {
         });
       },
       error: (err) => {
-        console.error('❌ ERROR al guardar foto:', err);
+        this.logger.error('Error al guardar foto de perfil', err);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -298,6 +335,7 @@ export class ProfileComponent implements OnInit {
   }
 
   logout() {
+    this.logger.info('Usuario cerró sesión', { userId: this.userInfo?.id_usuario });
     this.auth.logout();
 
     this.messageService.add({
@@ -315,17 +353,21 @@ export class ProfileComponent implements OnInit {
   // ================= ELIMINAR CUENTA =================
   deleteAccount() {
     this.showDeleteModal = true;
+    this.logger.warn('Usuario abrió modal de eliminar cuenta', { userId: this.userInfo?.id_usuario });
   }
 
   confirmDeleteAccount() {
     this.showDeleteModal = false;
+    this.logger.warn('Usuario confirmó eliminación de cuenta', { userId: this.userInfo?.id_usuario });
 
     this.auth.deleteAccount().subscribe({
       next: () => {
+        this.logger.info('Cuenta eliminada correctamente', {});
         this.auth.logout();
         window.location.href = '/home';
       },
-      error: () => {
+      error: (err) => {
+        this.logger.error('Error al eliminar cuenta', err);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -338,6 +380,7 @@ export class ProfileComponent implements OnInit {
 
   cancelDeleteAccount() {
     this.showDeleteModal = false;
+    this.logger.info('Usuario canceló eliminación de cuenta', {});
   }
 
   // ================= ERROR IMAGEN =================

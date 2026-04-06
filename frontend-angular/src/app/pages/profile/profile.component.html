@@ -1,50 +1,40 @@
 <div class="profile-page">
-  <!-- NOTIFICACIONES -->
   <p-toast position="top-right"></p-toast>
 
-  <!-- Breadcrumb -->
   <nav class="breadcrumb" aria-label="breadcrumb">
     <a (click)="goToHome()" style="cursor: pointer;">Inicio</a>
     <span>›</span>
     <span class="current">Perfil</span>
   </nav>
 
-  <!-- Contenedor principal -->
   <div class="profile-container">
-    
-    <!-- Header del perfil -->
+
     <div class="profile-header">
       <div class="profile-avatar">
-       <div class="avatar-circle">
+        <div class="avatar-circle">
+          <img *ngIf="previewImage || userInfo?.foto_perfil"
+               [src]="previewImage || userInfo?.foto_perfil"
+               alt="Foto de perfil"
+               (error)="onImageError($event)" />
+          <span *ngIf="!previewImage && !userInfo?.foto_perfil">
+            {{ getInitials(userInfo?.nombre) }}
+          </span>
+        </div>
 
-  <!-- Imagen si existe -->
-  <img *ngIf="previewImage || userInfo?.foto_perfil"
-     [src]="previewImage || userInfo?.foto_perfil"
-     alt="Foto de perfil"
-     (error)="onImageError($event)" />
+        <label class="change-photo-btn">
+          📷
+          <input type="file" (change)="onFileSelected($event)" accept="image/*" hidden>
+        </label>
 
-<span *ngIf="!previewImage && !userInfo?.foto_perfil">
-  {{ getInitials(userInfo?.nombre) }}
-</span>
-
-</div>
-
-<!-- Botón para cambiar foto -->
-<label class="change-photo-btn">
-  📷
-  <input type="file" (change)="onFileSelected($event)" accept="image/*" hidden>
-</label>
-
-<!-- Botón para guardar foto (aparece solo cuando hay una foto seleccionada) -->
-<button *ngIf="selectedFile" class="save-photo-btn" (click)="savePhotoOnly()" title="Guardar foto">
-  💾
-</button>
+        <button *ngIf="selectedFile" class="save-photo-btn" (click)="savePhotoOnly()" title="Guardar foto">
+          💾
+        </button>
 
         <div class="status-indicator" [class.premium]="isPremium" [class.admin]="isAdmin" [class.basic]="!isPremium && !isAdmin">
           {{ isPremium ? '👑' : isAdmin ? '🛡️' : '📖' }}
         </div>
       </div>
-      
+
       <div class="profile-info">
         <h1 class="profile-name">{{ userInfo?.nombre || 'Usuario' }}</h1>
         <p class="profile-email">{{ userInfo?.correo || 'usuario&#64;readnow.com' }}</p>
@@ -56,10 +46,8 @@
       </div>
     </div>
 
-    <!-- Sección de información detallada -->
     <div class="profile-content">
-      
-      <!-- Información personal -->
+
       <div class="info-section">
         <h2 class="section-title">
           <span class="icon">👤</span>
@@ -89,30 +77,30 @@
         </div>
       </div>
 
-      <!-- Historial de libros leídos -->
+      <!-- Historial de lectura con paginación -->
       <div class="info-section">
         <h2 class="section-title">
           <span class="icon">📚</span>
           Historial de Lectura
         </h2>
-        
+
         <div *ngIf="isLoadingHistory" class="loading-history">
           <div class="loading-spinner">⏳ Cargando historial...</div>
         </div>
-        
-        <div *ngIf="!isLoadingHistory && readingHistory.length === 0" class="empty-history">
+
+        <div *ngIf="!isLoadingHistory && allReadingHistory.length === 0" class="empty-history">
           <div class="empty-icon">📖</div>
           <p class="empty-text">Aún no has leído ningún libro</p>
           <p class="empty-subtext">Explora nuestro catálogo y comienza tu aventura de lectura</p>
         </div>
-        
-        <div *ngIf="!isLoadingHistory && readingHistory.length > 0" class="books-grid">
-          <div *ngFor="let item of readingHistory" class="book-item" 
+
+        <div *ngIf="!isLoadingHistory && allReadingHistory.length > 0" class="books-grid">
+          <div *ngFor="let item of readingHistory" class="book-item"
                [class.no-cover]="!item.book_details?.thumbnail">
             <div class="book-cover">
-              <img *ngIf="item.book_details?.thumbnail" 
-                   [src]="item.book_details!.thumbnail" 
-                   [alt]="item.book_details?.title || 'Portada del libro'" 
+              <img *ngIf="item.book_details?.thumbnail"
+                   [src]="item.book_details!.thumbnail"
+                   [alt]="item.book_details?.title || 'Portada del libro'"
                    (error)="onImageError($event)" />
               <div *ngIf="!item.book_details?.thumbnail" class="no-cover-placeholder">
                 📚
@@ -130,9 +118,20 @@
             </div>
           </div>
         </div>
+
+        <div class="pagination" *ngIf="historyTotalPages > 1">
+          <button (click)="goToHistoryPage(historyCurrentPage - 1)" [disabled]="historyCurrentPage === 1">‹</button>
+          <ng-container *ngFor="let page of [].constructor(historyTotalPages); let i = index">
+            <button
+              (click)="goToHistoryPage(i + 1)"
+              [class.active]="historyCurrentPage === i + 1">
+              {{i + 1}}
+            </button>
+          </ng-container>
+          <button (click)="goToHistoryPage(historyCurrentPage + 1)" [disabled]="historyCurrentPage === historyTotalPages">›</button>
+        </div>
       </div>
 
-      <!-- Acciones -->
       <div class="actions-section">
         <button class="action-btn primary" (click)="toggleEditMode()">
           <span class="icon">✏️</span>
@@ -148,7 +147,6 @@
         </button>
       </div>
 
-      <!-- Formulario de edición -->
       <div class="edit-section" *ngIf="isEditMode">
         <h2 class="section-title">
           <span class="icon">✏️</span>
@@ -176,8 +174,8 @@
           <div class="form-group">
             <label for="editPassword">Nueva contraseña</label>
             <div class="password-input-wrapper">
-              <input id="editPassword" [type]="showEditPassword ? 'text' : 'password'" 
-                     formControlName="password" class="form-input" 
+              <input id="editPassword" [type]="showEditPassword ? 'text' : 'password'"
+                     formControlName="password" class="form-input"
                      placeholder="Dejar en blanco para mantener actual"
                      [class.invalid]="editForm.get('password')?.invalid && editForm.get('password')?.touched">
               <span class="toggle-password" (click)="showEditPassword = !showEditPassword">
@@ -211,14 +209,13 @@
     </div>
   </div>
 
-  <!-- Modal de eliminación de cuenta -->
   <div *ngIf="showDeleteModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 9999;" (click)="cancelDeleteAccount()">
     <div style="background: white; border-radius: 20px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3); animation: fadeUp 0.3s ease-out;" (click)="$event.stopPropagation()">
       <div style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; padding: 20px 24px; border-radius: 20px 20px 0 0; display: flex; justify-content: space-between; align-items: center;">
         <h3 style="margin: 0; font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px;">⚠️ Eliminar Cuenta</h3>
         <button style="background: none; border: none; font-size: 24px; color: white; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s ease;" (click)="cancelDeleteAccount()">×</button>
       </div>
-      
+
       <div style="padding: 24px; text-align: center;">
         <div style="font-size: 48px; margin-bottom: 16px; animation: pulse 2s infinite;">🗑️</div>
         <p style="font-size: 15px; font-weight: 600; color: #475569; margin: 0 0 12px 0;">
@@ -239,7 +236,7 @@
           <strong>Una vez eliminada, no podrás recuperar esta información.</strong>
         </p>
       </div>
-      
+
       <div style="display: flex; gap: 10px; padding: 20px 24px; border-top: 1px solid #e2e8f0;">
         <button style="flex: 1; padding: 12px 24px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.25s ease; background: #e2e8f0; color: #475569;" (click)="cancelDeleteAccount()">
           Cancelar
