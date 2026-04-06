@@ -14,9 +14,21 @@ import { LoggerService } from '../core/services/logger.service';
 })
 export class FavoritesComponent implements OnInit {
 
+  allFavorites: any[] = [];
   favorites: any[] = [];
   loading = true;
   error = false;
+
+  currentPage: number = 1;
+  booksPerPage: number = 20;
+
+  get totalPages(): number {
+    return Math.ceil(this.allFavorites.length / this.booksPerPage);
+  }
+
+  get totalFavorites(): number {
+    return this.allFavorites.length;
+  }
 
   constructor(
     private favoritesService: FavoritesService,
@@ -30,6 +42,19 @@ export class FavoritesComponent implements OnInit {
   openBook(book: any) {
     this.logger.info('Usuario abrió libro desde favoritos', { bookId: book.bookid, titulo: book.titulo });
     this.router.navigate(['/book', book.bookid]);
+  }
+
+  updatePage() {
+    const start = (this.currentPage - 1) * this.booksPerPage;
+    const end = start + this.booksPerPage;
+    this.favorites = this.allFavorites.slice(start, end);
+  }
+
+  goToPage(page: number) {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.updatePage();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   removeFavorite(event: Event, book: any) {
@@ -49,7 +74,8 @@ export class FavoritesComponent implements OnInit {
 
     this.favoritesService.removeFavorite(userId, book.bookid).subscribe({
       next: () => {
-        this.favorites = this.favorites.filter(f => f.bookid !== book.bookid);
+        this.allFavorites = this.allFavorites.filter(f => f.bookid !== book.bookid);
+        this.updatePage();
         this.logger.info('Libro eliminado de favoritos', { bookId: book.bookid, titulo: book.titulo });
       },
       error: (err: any) => {
@@ -88,7 +114,8 @@ export class FavoritesComponent implements OnInit {
 
     this.favoritesService.getFavoritesByUser(userId).subscribe({
       next: (data: any[]) => {
-        this.favorites = data;
+        this.allFavorites = data;
+        this.updatePage();
         this.loading = false;
         this.logger.info('Favoritos cargados correctamente', { total: data.length, userId });
       },

@@ -226,3 +226,43 @@ hr {
     box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
   }
 }
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 32px;
+  padding-bottom: 24px;
+
+  button {
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 10px;
+    border: 1.5px solid #d0d0d0;
+    background: white;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    color: #1f2937;
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+      background: #e8f0fe;
+      border-color: #2e8fd4;
+      color: #2e8fd4;
+    }
+
+    &.active {
+      background: #2e8fd4;
+      color: white;
+      border-color: #2e8fd4;
+      font-weight: 700;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+}

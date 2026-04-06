@@ -21,6 +21,7 @@ export class BookDetailComponent implements OnInit {
   canRead = false;
   isFavorite = false;
   favoriteLoading = false;
+  category: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -33,10 +34,18 @@ export class BookDetailComponent implements OnInit {
 
   goToHome() { this.router.navigate(['/home']); }
   gotocategory() { this.router.navigate(['/categories']); }
-  goToCatalog() { this.router.navigate(['/catalog']); }
+  goToCatalog() { 
+    this.router.navigate(['/catalog'], { 
+      queryParams: { category: this.category } 
+    }); 
+  }
   goToPremium() { this.router.navigate(['/premium']); }
 
   ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      this.category = params['category'] || '';
+    });
+
     const id = this.route.snapshot.paramMap.get('id');
 
     if (!id) {
@@ -124,11 +133,9 @@ export class BookDetailComponent implements OnInit {
     }
   }
 
-
   checkIfFavorite() {
     if (!this.auth.isLogged() || !this.book) return;
 
-    // Extrae el id_usuario del token 
     const token = this.auth.getToken();
     if (!token) return;
 
@@ -195,7 +202,6 @@ export class BookDetailComponent implements OnInit {
       });
     }
   }
-
 
   getBookDescription(): string {
     const title = this.book.title || 'este libro';

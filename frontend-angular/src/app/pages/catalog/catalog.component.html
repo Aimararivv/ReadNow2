@@ -7,42 +7,41 @@
 </nav>
 
 <section class="catalog-container">
+  <div class="catalog-box">
+    <div class="catalog-header">
+      <h2>Resultados de búsqueda</h2>
+      <span>{{totalBooks}} libros encontrados</span>
+    </div>
 
-<div class="catalog-box">
+    <hr>
 
-<div class="catalog-header">
+    <div class="books-grid">
+      <div
+        class="book-card"
+        *ngFor="let book of books"
+        (click)="openBook(book)"
+      >
+        <img
+          [src]="book.imagen || book.thumbnail || 'assets/default-book-cover.jpg'"
+          alt="Libro"
+        >
+        <h3>{{book.titulo || book.title}}</h3>
+        <p class="author">{{book.autor || book.author}}</p>
+      </div>
+    </div>
 
-<h2>Resultados de búsqueda</h2>
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">‹</button>
+      <ng-container *ngFor="let page of [].constructor(totalPages); let i = index">
+        <button
+          (click)="goToPage(i + 1)"
+          [class.active]="currentPage === i + 1"
+        >
+          {{i + 1}}
+        </button>
+      </ng-container>
+      <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">›</button>
+    </div>
 
-<span>{{books.length}} libros encontrados</span>
-
-</div>
-
-<hr>
-
-<div class="books-grid">
-
-<div
-class="book-card"
-*ngFor="let book of books"
-(click)="openBook(book)"
->
-
-<img 
-[src]="book.imagen || book.thumbnail || 'assets/default-book-cover.jpg'"
-alt="Libro"
->
-
-<h3>{{book.titulo || book.title}}</h3>
-
-<p class="author">
-{{book.autor || book.author}}
-</p>
-
-</div>
-
-</div>
-
-</div>
-
+  </div>
 </section>

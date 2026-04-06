@@ -74,10 +74,21 @@ export const getBooksByCategory = async (req, res) => {
     const { category } = req.params;
     const searchQuery = categoryMap[category] || category;
 
-    const response = await fetch(`https://gutendex.com/books?search=${encodeURIComponent(searchQuery)}`);
-    const data = await response.json();
+    console.log(`📚 Obteniendo libros de categoría: ${category}`);
 
-    const books = data.results?.slice(0, 20).map(formatBook) || [];
+    const [page1, page2] = await Promise.all([
+      fetch(`https://gutendex.com/books?search=${encodeURIComponent(searchQuery)}`).then(r => r.json()),
+      fetch(`https://gutendex.com/books?search=${encodeURIComponent(searchQuery)}&page=2`).then(r => r.json())
+    ]);
+
+    const results = [
+      ...(page1.results || []),
+      ...(page2.results || [])
+    ];
+
+    const books = results.map(formatBook);
+
+    console.log(`📊 Total libros obtenidos para ${category}: ${books.length}`);
 
     res.json(books);
   } catch (error) {
@@ -91,6 +102,18 @@ export const getBookById = async (req, res) => {
     const { id } = req.params;
 
     const response = await fetch(`https://gutendex.com/books/${id}`);
+    
+    if (!response.ok) {
+      console.error(`❌ Error HTTP de Gutenberg: ${response.status}`);
+      return res.status(502).json({ message: 'Error al obtener detalles del libro de Gutenberg' });
+    }
+    
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.error('❌ Gutenberg devolvió contenido no-JSON:', contentType);
+      return res.status(502).json({ message: 'Respuesta inválida del servidor de libros' });
+    }
+    
     const book = await response.json();
 
     const bookDetail = {
@@ -108,7 +131,7 @@ export const getBookById = async (req, res) => {
 
     res.json(bookDetail);
   } catch (error) {
-    console.error('Error fetching book details from Gutenberg:', error);
+    console.error('❌ Error fetching book details from Gutenberg:', error.message);
     res.status(500).json({ message: 'Error al obtener detalles del libro' });
   }
 };
@@ -118,6 +141,18 @@ export const getPublicBookById = async (req, res) => {
     const { id } = req.params;
 
     const response = await fetch(`https://gutendex.com/books/${id}`);
+    
+    if (!response.ok) {
+      console.error(`❌ Error HTTP de Gutenberg: ${response.status}`);
+      return res.status(502).json({ message: 'Error al obtener detalles del libro de Gutenberg' });
+    }
+    
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.error('❌ Gutenberg devolvió contenido no-JSON:', contentType);
+      return res.status(502).json({ message: 'Respuesta inválida del servidor de libros' });
+    }
+    
     const book = await response.json();
 
     const bookDetail = {
@@ -135,7 +170,7 @@ export const getPublicBookById = async (req, res) => {
 
     res.json(bookDetail);
   } catch (error) {
-    console.error('Error fetching public book details from Gutenberg:', error);
+    console.error('❌ Error fetching public book details from Gutenberg:', error.message);
     res.status(500).json({ message: 'Error al obtener detalles del libro' });
   }
 };

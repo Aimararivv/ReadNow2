@@ -1,11 +1,9 @@
-<!-- BREADCRUMB -->
 <nav class="breadcrumb" aria-label="breadcrumb">
   <a (click)="goToHome()" style="cursor: pointer;">Inicio</a>
   <span>›</span>
   <span class="current">Mis Favoritos</span>
 </nav>
 
-<!-- LOADING -->
 <div class="search-loading" *ngIf="loading">
   <div class="loading-spinner">⏳</div>
   <p>Cargando favoritos...</p>
@@ -19,20 +17,19 @@
   <div class="catalog-box">
 
     <div class="catalog-header">
-      <h2>Mis Favoritos <span class="query-text"></span></h2>
-      <span>{{ favorites.length }} {{ favorites.length === 1 ? 'libro guardado' : 'libros guardados' }}</span>
+      <h2>Mis Favoritos</h2>
+      <span>{{ totalFavorites }} {{ totalFavorites === 1 ? 'libro guardado' : 'libros guardados' }}</span>
     </div>
 
     <hr>
 
-    <!-- VACÍO -->
-    <div class="search-empty" *ngIf="favorites.length === 0">
+    <div class="search-empty" *ngIf="allFavorites.length === 0">
       <p>Aún no tienes libros en favoritos</p>
       <p class="search-empty-hint">Explora el catálogo y marca los que te interesen con ❤️</p>
       <button class="btn-catalog" (click)="goToHome()">Explorar catálogo</button>
     </div>
 
-    <div class="books-grid" *ngIf="favorites.length > 0">
+    <div class="books-grid" *ngIf="allFavorites.length > 0">
       <div
         class="book-card"
         *ngFor="let book of favorites"
@@ -56,6 +53,18 @@
         <p class="author">{{ book.autor }}</p>
 
       </div>
+    </div>
+
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">‹</button>
+      <ng-container *ngFor="let page of [].constructor(totalPages); let i = index">
+        <button
+          (click)="goToPage(i + 1)"
+          [class.active]="currentPage === i + 1">
+          {{i + 1}}
+        </button>
+      </ng-container>
+      <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">›</button>
     </div>
 
   </div>
