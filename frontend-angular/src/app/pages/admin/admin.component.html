@@ -1,0 +1,113 @@
+<div class="admin-container">
+  <h1>Panel de Administrador</h1>
+  
+  <!-- Estadísticas -->
+  <div class="stats-section" *ngIf="stats">
+    <h2>Estadísticas de la Plataforma</h2>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>{{ stats.totalUsuarios }}</h3>
+        <p>Usuarios Totales</p>
+      </div>
+      <div class="stat-card">
+        <h3>{{ stats.totalFavoritos }}</h3>
+        <p>Favoritos</p>
+      </div>
+      <div class="stat-card">
+        <h3>{{ stats.totalLecturas }}</h3>
+        <p>Lecturas</p>
+      </div>
+    </div>
+    
+    <div class="roles-distribution">
+      <h3>Distribución por Rol</h3>
+      <div class="role-bars">
+        <div *ngFor="let rol of stats.usuariosPorRol" class="role-item">
+          <span class="role-name">{{ rol.role }}</span>
+          <div class="role-bar">
+            <div class="role-fill" [style.width.%]="(rol.count / stats.totalUsuarios) * 100"></div>
+          </div>
+          <span class="role-count">{{ rol.count }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gestión de Usuarios -->
+  <div class="users-section">
+    <div class="section-header">
+      <h2>Gestión de Usuarios</h2>
+      <button class="btn-create" (click)="showCreateForm = !showCreateForm">
+        {{ showCreateForm ? 'Cancelar' : 'Crear Usuario' }}
+      </button>
+    </div>
+
+    <!-- Formulario para crear usuario -->
+    <div class="create-form" *ngIf="showCreateForm">
+      <h3>Crear Nuevo Usuario</h3>
+      <div class="form-group">
+        <label>Nombre</label>
+        <input type="text" [(ngModel)]="newUser.nombre" placeholder="Nombre completo">
+      </div>
+      <div class="form-group">
+        <label>Correo</label>
+        <input type="email" [(ngModel)]="newUser.correo" placeholder="correo@ejemplo.com">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" [(ngModel)]="newUser.password" placeholder="Contraseña">
+      </div>
+      <div class="form-group">
+        <label>Rol</label>
+        <select [(ngModel)]="newUser.role">
+          <option value="FREE">FREE</option>
+          <option value="PREMIUM">PREMIUM</option>
+          <option value="ADMIN">ADMIN</option>
+        </select>
+      </div>
+      <button class="btn-submit" (click)="createUser()">Crear Usuario</button>
+    </div>
+
+    <!-- Tabla de usuarios -->
+    <div class="users-table-container">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Rol</th>
+            <th>Fecha Registro</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>{{ user.id_usuario }}</td>
+            <td>{{ user.nombre }}</td>
+            <td>{{ user.correo }}</td>
+            <td>
+              <span class="role-badge" [class]="getRoleColor(user.role)">
+                {{ user.role }}
+              </span>
+            </td>
+            <td>{{ user.fecha_creacion | date:'dd/MM/yyyy' }}</td>
+            <td class="actions">
+              <select (change)="updateRole(user.id_usuario, $any($event.target).value, user.nombre)">
+                <option value="" disabled selected>Cambiar rol</option>
+                <option value="FREE">FREE</option>
+                <option value="PREMIUM">PREMIUM</option>
+                <option value="ADMIN">ADMIN</option>
+              </select>
+              <button class="btn-delete" (click)="deleteUser(user.id_usuario, user.nombre)">
+                Eliminar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<p-toast></p-toast>

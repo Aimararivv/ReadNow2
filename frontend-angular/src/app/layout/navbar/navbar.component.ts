@@ -300,6 +300,11 @@ export class NavbarComponent {
     this.router.navigate(['/perfil']);
   }
 
+  goToAdmin() {
+    this.showProfileDropdown = false;
+    this.router.navigate(['/admin']);
+  }
+
   logout() {
     this.logger.info('Usuario cerró sesión');
 

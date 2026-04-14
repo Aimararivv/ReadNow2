@@ -14,6 +14,7 @@ import lecturaRoutes from './routes/lectura.routes.js';
 import dbRoutes from './routes/db.routes.js';
 import logsRoutes from './routes/logs.routes.js';
 import favoritesRoutes from './routes/favorites.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5036;
@@ -64,7 +65,7 @@ app.use('/api/books/read', lecturaRoutes);
 app.use('/api', dbRoutes);
 app.use('/api/logs', logsRoutes);
 app.use('/api/favorites', favoritesRoutes);
-
+app.use('/api/admin', adminRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {

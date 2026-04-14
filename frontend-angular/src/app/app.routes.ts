@@ -9,7 +9,9 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { ResultadosComponent } from './Busqueda/Resultados.component';
 
 import { premiumGuard } from './core/services/premium.guard';
+import { AdminGuard } from './core/guards/admin.guard';
 import { FavoritesComponent } from './favorites/favorites.component';
+import { AdminComponent } from './pages/admin/admin.component';
 
 export const routes: Routes = [
   {
@@ -47,6 +49,12 @@ export const routes: Routes = [
   {
     path: 'favoritos',
     component: FavoritesComponent 
+  },
+  // Admin (solo para administradores)
+  {
+    path: 'admin',
+    component: AdminComponent,
+    canActivate: [AdminGuard]
   },
   // Libro (ACCESO PARA TODOS)
   {
