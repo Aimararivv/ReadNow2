@@ -105,6 +105,10 @@
           <span class="option-icon">👤</span>
           <span class="option-text">Perfil</span>
         </div>
+        <div class="profile-option admin" *ngIf="auth.isAdmin()" (click)="goToAdmin()">
+          <span class="option-icon">⚙️</span>
+          <span class="option-text">Panel Admin</span>
+        </div>
         <div class="profile-option logout" (click)="logout()">
           <span class="option-icon">🚪</span>
           <span class="option-text">Cerrar Sesión</span>
