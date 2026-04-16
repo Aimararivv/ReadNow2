@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://tu-backend-production.com/api'
+  apiUrl: 'https://api.readnow.com.mx/api'
 };

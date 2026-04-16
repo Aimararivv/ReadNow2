@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
 import { Observable } from 'rxjs';
@@ -18,6 +18,17 @@ export interface Stats {
   usuariosPorRol: { role: string; count: number }[];
   totalFavoritos: number;
   totalLecturas: number;
+}
+
+export interface LogEntry {
+  id?: number;
+  level: string;
+  message: string;
+  component: string;
+  user_id?: number;
+  user_name?: string;
+  data?: string;
+  created_at: string;
 }
 
 @Injectable({
@@ -61,8 +72,56 @@ export class AdminService {
     return this.http.get<{ stats: Stats }>(`${this.apiUrl}/stats`, { headers: this.getHeaders() });
   }
 
-  // Obtener logs del sistema
-  getSystemLogs(): Observable<{ logs: any[] }> {
-    return this.http.get<{ logs: any[] }>(`${this.apiUrl}/logs`, { headers: this.getHeaders() });
+  // Obtener logs del sistema con filtros opcionales
+  getSystemLogs(filters?: { level?: string; days?: number; limit?: number }): Observable<{ logs: LogEntry[]; count: number }> {
+    let params = new HttpParams();
+    if (filters?.level && filters.level !== 'ALL') {
+      params = params.set('level', filters.level);
+    }
+    if (filters?.days) {
+      params = params.set('days', filters.days.toString());
+    }
+    if (filters?.limit) {
+      params = params.set('limit', filters.limit.toString());
+    }
+    
+    return this.http.get<{ logs: LogEntry[]; count: number }>(
+      `${this.apiUrl}/logs`, 
+      { headers: this.getHeaders(), params }
+    );
+  }
+
+  // Descargar logs como CSV
+  downloadLogsCSV(filters?: { level?: string; days?: number }): void {
+    let params = new HttpParams();
+    if (filters?.level && filters.level !== 'ALL') {
+      params = params.set('level', filters.level);
+    }
+    if (filters?.days) {
+      params = params.set('days', filters.days.toString());
+    }
+    
+    const token = this.authService.getToken();
+    const url = `${this.apiUrl}/logs/download?${params.toString()}`;
+    
+    // Crear link temporal para descarga
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `logs_readnow_${new Date().toISOString().split('T')[0]}.csv`);
+    
+    // Agregar token en header usando fetch
+    fetch(url, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    .then(response => response.blob())
+    .then(blob => {
+      const urlBlob = window.URL.createObjectURL(blob);
+      link.href = urlBlob;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(urlBlob);
+    })
+    .catch(error => console.error('Error descargando CSV:', error));
   }
 }

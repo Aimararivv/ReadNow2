@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AdminService, User, Stats } from '../../core/services/admin.service';
+import { AdminService, User, Stats, LogEntry } from '../../core/services/admin.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 
@@ -26,6 +26,21 @@ export class AdminComponent implements OnInit {
   };
   
   showCreateForm = false;
+
+  // Logs
+  logs: LogEntry[] = [];
+  isLoadingLogs = false;
+  logCount = 0;
+  
+  // Filtros de logs
+  logFilters = {
+    level: 'ALL',
+    days: undefined as number | undefined,
+    limit: 100
+  };
+  
+  logLevels = ['ALL', 'INFO', 'WARN', 'ERROR', 'LOG'];
+  activeTab: 'users' | 'logs' = 'users';
 
   constructor(
     private adminService: AdminService,
@@ -157,6 +172,60 @@ export class AdminComponent implements OnInit {
       case 'PREMIUM': return 'role-premium';
       case 'FREE': return 'role-free';
       default: return '';
+    }
+  }
+
+  // ========== MÉTODOS DE LOGS ==========
+  
+  loadLogs() {
+    this.isLoadingLogs = true;
+    this.adminService.getSystemLogs(this.logFilters).subscribe({
+      next: (response) => {
+        this.logs = response.logs;
+        this.logCount = response.count;
+        this.isLoadingLogs = false;
+      },
+      error: (error) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudieron cargar los logs'
+        });
+        this.isLoadingLogs = false;
+      }
+    });
+  }
+
+  applyLogFilters() {
+    this.loadLogs();
+  }
+
+  downloadLogs() {
+    this.adminService.downloadLogsCSV({
+      level: this.logFilters.level,
+      days: this.logFilters.days
+    });
+    
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: 'Reporte de logs descargado'
+    });
+  }
+
+  getLogLevelClass(level: string): string {
+    switch (level) {
+      case 'ERROR': return 'level-error';
+      case 'WARN': return 'level-warn';
+      case 'INFO': return 'level-info';
+      default: return 'level-log';
+    }
+  }
+
+  switchTab(tab: 'users' | 'logs') {
+    this.activeTab = tab;
+    if (tab === 'logs' && this.logs.length === 0) {
+      this.loadLogs();
     }
   }
 }

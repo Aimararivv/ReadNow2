@@ -18,5 +18,6 @@ router.get('/stats', adminController.getStats);
 
 // Logs del sistema
 router.get('/logs', adminController.getSystemLogs);
+router.get('/logs/download', adminController.downloadLogsCSV);
 
 export default router;

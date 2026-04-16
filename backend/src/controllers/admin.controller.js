@@ -160,16 +160,103 @@ export const createUser = async (req, res) => {
 // Obtener logs del sistema (solo admin)
 export const getSystemLogs = async (req, res) => {
   try {
-    // Aquí podrías implementar un sistema de logs más completo
-    // Por ahora retornamos un mensaje informativo
+    const { level, days, limit = 100 } = req.query;
+    
+    let query = `
+      SELECT l.*, u.nombre as user_name 
+      FROM logs l 
+      LEFT JOIN usuarios u ON l.user_id = u.id_usuario 
+      WHERE 1=1
+    `;
+    const params = [];
+    let paramIndex = 1;
+    
+    // Filtro por fecha solo si se especifica
+    if (days) {
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - parseInt(days));
+      query += ` AND l.created_at >= $${paramIndex}`;
+      params.push(startDate.toISOString());
+      paramIndex++;
+    }
+    
+    // Filtro por nivel
+    if (level && level !== 'ALL') {
+      query += ` AND l.level = $${paramIndex}`;
+      params.push(level);
+      paramIndex++;
+    }
+    
+    query += ` ORDER BY l.created_at DESC LIMIT $${paramIndex}`;
+    params.push(parseInt(limit));
+    
+    const result = await pool.query(query, params);
+    
     res.json({
       message: 'Logs del sistema',
-      logs: [
-        { timestamp: new Date().toISOString(), level: 'INFO', message: 'Sistema funcionando correctamente' }
-      ]
+      logs: result.rows,
+      count: result.rows.length,
+      filters: { level, days, limit }
     });
   } catch (error) {
     console.error('Error obteniendo logs:', error);
     res.status(500).json({ message: 'Error obteniendo logs', error: error.message });
+  }
+};
+
+// Descargar logs como CSV (solo admin)
+export const downloadLogsCSV = async (req, res) => {
+  try {
+    const { level, days } = req.query;
+    
+    let query = `
+      SELECT l.created_at, l.level, l.message, l.component, u.nombre as user_name, l.data
+      FROM logs l 
+      LEFT JOIN usuarios u ON l.user_id = u.id_usuario 
+      WHERE 1=1
+    `;
+    const params = [];
+    let paramIndex = 1;
+    
+    // Filtro por fecha solo si se especifica
+    if (days) {
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - parseInt(days));
+      query += ` AND l.created_at >= $${paramIndex}`;
+      params.push(startDate.toISOString());
+      paramIndex++;
+    }
+    
+    // Filtro por nivel
+    if (level && level !== 'ALL') {
+      query += ` AND l.level = $${paramIndex}`;
+      params.push(level);
+      paramIndex++;
+    }
+    
+    query += ` ORDER BY l.created_at DESC`;
+    
+    const result = await pool.query(query, params);
+    
+    // Generar CSV
+    const headers = ['Fecha', 'Nivel', 'Mensaje', 'Componente', 'Usuario', 'Datos'];
+    const rows = result.rows.map(log => [
+      log.created_at,
+      log.level,
+      `"${(log.message || '').replace(/"/g, '""')}"`,
+      log.component || 'system',
+      log.user_name || 'Anónimo',
+      `"${(log.data || '').replace(/"/g, '""')}"`
+    ]);
+    
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="logs_readnow_${new Date().toISOString().split('T')[0]}.csv"`);
+    res.send('\uFEFF' + csv); // BOM para Excel
+    
+  } catch (error) {
+    console.error('Error generando CSV:', error);
+    res.status(500).json({ message: 'Error generando CSV', error: error.message });
   }
 };
